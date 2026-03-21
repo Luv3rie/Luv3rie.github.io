@@ -4,6 +4,7 @@ description: Chia sẻ kiến thức Active Directory & CTF cho cộng đồng V
 
 url: "https://Luv3rie.github.io"
 baseurl: ""
+permalink: /posts/:title/
 
 lang: vi-VN
 timezone: Asia/Ho_Chi_Minh
