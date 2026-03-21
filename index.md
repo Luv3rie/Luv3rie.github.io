@@ -3,6 +3,12 @@ layout: page
 title: AD Mindmap Project
 ---
 
+By **Luverie**,
+
+Xin chào các anh em đồng đam mê, nơi đây tôi sẽ ghi chép lại những cách thức cũng như kinh nghiệm tấn công AD mà tôi đã đúc kết được suốt chặng đường học tập của mình. Tất nhiên nó chưa đủ bao quát hết mọi ngóc ngách cũng như kỹ thuật lén lút, bypass thượng thừa. Nếu tôi có học được gì mới tôi sẽ cập nhật lên sớm nhất có thể. Enjoy! 
+
+---
+
 ## 🗺️ Active Directory
 
 ### 1. 🔍 Trinh Sát
@@ -38,3 +44,5 @@ title: AD Mindmap Project
 * **[Vé kim cương](posts/tgt-plus)**
 * **[DCShadow](posts/dcshadow)**
 * **[Skeleton Key](posts/skeleton-key)**
+
+---
