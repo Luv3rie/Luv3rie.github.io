@@ -1,3 +1,13 @@
 title: Luverie
-description: security research & ctf writeups
+tagline: Security Research & AD Mindmap Project
+description: Chia sẻ kiến thức Active Directory & CTF cho cộng đồng Việt Nam.
+
+url: "https://Luv3rie.github.io"
+baseurl: ""
+
 theme: jekyll-theme-chirpy
+ lang: vi-VN
+ timezone: Asia/Ho_Chi_Minh
+
+markdown: kramdown
+highlighter: rouge
