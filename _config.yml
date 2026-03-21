@@ -1,14 +1,23 @@
 title: Luverie
 tagline: Security Research & AD Mindmap Project
 description: Chia sẻ kiến thức Active Directory & CTF cho cộng đồng Việt Nam.
-remote_theme: cotes2020/jekyll-theme-chirpy
 
 url: "https://Luv3rie.github.io"
 baseurl: ""
 
+remote_theme: cotes2020/jekyll-theme-chirpy
 theme: jekyll-theme-chirpy
- lang: vi-VN
- timezone: Asia/Ho_Chi_Minh
+lang: vi-VN
+timezone: Asia/Ho_Chi_Minh
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-archives
 
 markdown: kramdown
 highlighter: rouge
+kramdown:
+  syntax_highlighter_opts:
+    disable: false
