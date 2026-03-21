@@ -5,16 +5,15 @@ description: Chia sẻ kiến thức Active Directory & CTF cho cộng đồng V
 url: "https://Luv3rie.github.io"
 baseurl: ""
 
-remote_theme: cotes2020/jekyll-theme-chirpy
-theme: jekyll-theme-chirpy
 lang: vi-VN
 timezone: Asia/Ho_Chi_Minh
 
+remote_theme: jekyll/minima
 plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
+  - jekyll-remote-theme
   - jekyll-seo-tag
-  - jekyll-archives
+minima:
+  skin: dark
 
 markdown: kramdown
 highlighter: rouge
