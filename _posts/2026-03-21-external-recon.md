@@ -45,8 +45,8 @@ site:tên_miền "password" | "secret" | "config"
 * **Google Dorks**: Tìm kiếm các trang quản trị bị lộ
 
 ```bash
-site:company.com intitle:login
+site:<trang_web_công_ty> intitle:login
 ```
 ```bash
-site:company.com filetype:php | filetype:asp
+site:<trang_web_công_ty> filetype:php | filetype:asp
 ```
