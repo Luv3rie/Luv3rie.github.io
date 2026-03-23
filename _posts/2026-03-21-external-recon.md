@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Trinh Sát Bên Ngoài"
-categories: [Recon]
+categories: [Mindmap]
 ---
 
 Tìm kiếm thông tin trôi nổi bên ngoài để không bỏ sót một miếng vàng nào. Mục tiêu của giai đoạn này là thu thập càng nhiều dữ liệu về con người và hạ tầng càng tốt mà không cần chạm trực tiếp vào hệ thống của mục tiêu. **OSINT!**
