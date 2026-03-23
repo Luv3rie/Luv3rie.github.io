@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Không Có Tài Khoản Miền"
-categories: [Recon]
+categories: [Mindmap]
 ---
 
 Khi chưa có một tấm thẻ định danh nào trong tay, ta vẫn có thể lợi dụng những sơ hở trong các giao thức mặc định của Windows để ép hệ thống nhả ra Hash mật khẩu hoặc thông tin người dùng.
