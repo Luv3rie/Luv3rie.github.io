@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Dấu Chân Mạng"
-categories: [Recon]
+categories: [Mindmap]
 ---
 
 Sau khi đã có trong tay những "mảnh ghép" từ Internet, giờ là lúc ta thực sự bước qua cánh cửa để vẽ nên bản đồ bên trong lâu đài. **Internal Recon!**
