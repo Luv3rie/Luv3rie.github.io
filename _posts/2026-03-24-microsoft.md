@@ -70,8 +70,8 @@ Thông thường, lập trình viên sẽ thiết lập một bộ lọc (LDAP F
 * memberOf: Rào chắn để chỉ cho phép người dùng thuộc nhóm WebUsers mới được vào.
 
 Nếu ứng dụng chỉ đơn thuần lấy user_input từ bạn và ghép vào chuỗi trên mà không lọc các ký tự điều khiển LDAP (( ) & | * =), ta có thể kết thúc sớm điều kiện này và chèn thêm điều kiện khác vào.
-* Nếu ta nhập Username là ```admin)(description=*``` câu truy vấn trở thành ```(&(sAMAccountName=admin)(description=*)(objectClass=user)...)``` -> Lúc này, nếu mật khẩu bạn nhập bừa nhưng LDAP tìm thấy User admin có thuộc tính description bất kỳ, logic có thể bị đánh lừa tùy vào cách App xử lý kết quả trả về.
-* Nếu ta nhập ```admin*)(|(sAMAccountName=*``` câu lệnh bị biến dạng thành ```(&(sAMAccountName=admin*)(|(sAMAccountName=*)(objectClass=user)...)``` -> Dấu * (Wildcard) khiến bộ lọc khớp với mọi người dùng, và toán tử | (OR) có thể làm vô hiệu hóa các điều kiện kiểm tra nhóm phía sau.
+* Nếu ta nhập Username là ```admin)(description=*``` câu truy vấn trở thành ```(&(sAMAccountName=admin)(description=*)(objectClass=user)...)```. Lúc này, nếu mật khẩu bạn nhập bừa nhưng LDAP tìm thấy User admin có thuộc tính description bất kỳ, logic có thể bị đánh lừa tùy vào cách App xử lý kết quả trả về.
+* Nếu ta nhập ```admin*)(|(sAMAccountName=*``` câu lệnh bị biến dạng thành ```(&(sAMAccountName=admin*)(|(sAMAccountName=*)(objectClass=user)...)```. Dấu "*" (Wildcard) khiến bộ lọc khớp với mọi người dùng, và toán tử "|" (OR) có thể làm vô hiệu hóa các điều kiện kiểm tra nhóm phía sau.
 
 Trong thực tế, các hệ thống Web hoặc Web Application Firewall (WAF) thường có các lớp lọc cơ bản để chặn các ký tự lạ.
 * Fuzzing: Để tìm ra khe hở — những ký tự nào bị chặn, ký tự nào lọt qua được (ví dụ: chặn * nhưng cho phép %).
