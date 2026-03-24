@@ -1,0 +1,14 @@
+---
+---
+@import "minima";
+
+body {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.post-content {
+  p, li, blockquote {
+    font-size: 1.125rem; 
+  }
+}
