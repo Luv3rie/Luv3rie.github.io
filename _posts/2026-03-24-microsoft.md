@@ -9,7 +9,9 @@ Active Directory không bao giờ đứng cô đơn. Để phục vụ kinh doan
 Điểm yếu chết người nằm ở chỗ: các dịch vụ này buộc phải có một danh phận (Service Account) để giao tiếp với AD. Một sai lầm nhỏ trong cấu hình truy vấn LDAP hay một chuỗi kết nối Database bị lộ lọt cũng đủ để kẻ tấn công từ một kẻ ngoại đạo trở thành người nắm giữ chìa khóa của những tài khoản quan trọng nhất. Hãy cùng bóc tách cách chúng ta 'lạm dụng' những sự kết nối này
 
 ### **1. MSSQL**
-Trong cấu trúc Mindmap AD của chúng ta, các dịch vụ Microsoft mở rộng chính là những "cửa sổ không khóa". Và MSSQL chính là cánh cửa sổ to nhất, hớ hênh nhất mà Pentester luôn nhắm tới đầu tiên. Tại sao? Vì nó thường chạy dưới quyền một Service Account trong Domain và cấu hình xác thực cực kỳ "thông thoáng".
+
+* **Thực tế:** Cực kỳ phổ biến. MSSQL thường chạy dưới quyền một Domain User có đặc quyền cao hoặc thậm chí là Managed Service Account.
+* **OpSec:** Trung bình. Việc bật xp_cmdshell sẽ để lại log trong SQL Server, nhưng các đòn thụ động như xp_dirtree thì cực kỳ êm ái.
 
 Lỗ hổng MSSQL có thể đến từ SQL Injection trên Web, nhưng nếu bạn đã có một tài khoản, hãy thử đăng nhập trực tiếp qua cổng 1433.
 
@@ -33,8 +35,6 @@ Khi đã vào được trong, đừng gõ bừa bãi. Hãy dùng các lệnh có
 Nếu có quyền cao, ta có thể dùng 2 lệnh sau để lấy shell trên máy host dịch vụ MSSQL này:
 * enable_xp_cmdshell: Bật Procedure xp_cmdshell.
 * xp_cmdshell <lệnh>: Nếu xp_cmdshell bị chặn, dùng sp_start_job <lệnh> nhưng lệnh này sẽ chạy ngầm nên bạn cần phải tạo một reverse shell.
-
-
 
 MSSQL còn có một Procedure là xp_dirtree. Lạm dụng nó là một đòn tấn công êm ái, thụ động. Ta ép SQL Server truy cập vào một đường dẫn mạng (UNC path) giả mạo do ta kiểm soát để bắt lấy Hash của tài khoản chạy dịch vụ SQL.
 
