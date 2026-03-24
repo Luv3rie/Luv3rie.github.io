@@ -78,7 +78,7 @@ Trong thực tế, các hệ thống Web hoặc Web Application Firewall (WAF) t
 * Double Encoding: Lợi dụng việc trình duyệt decode 1 lần và App decode thêm 1 lần nữa để đưa các ký tự cấm vào sâu trong câu truy vấn LDAP mà không bị bộ lọc phát hiện ở vòng ngoài.
 
 | Ký tự | URL Encode | Double Encode |
-| :--- | :---: | :--- |
+| :---: | :---: | :---: |
 | **\*** | `%2A` | `%252A` |
 | **(** | `%28` | `%2528` |
 | **)** | `%29` | `%2529` |
