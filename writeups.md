@@ -72,20 +72,20 @@ permalink: /writeups/
   <div id="htb" class="writeup-list">
     <h2 style="color: #a3be8c;">🏔️ Hack The Box</h2>
     <ul>
-      <li><a href="/writeups/htb-darkzero">DarkZero</a></li>
-      <li><a href="/writeups/htb-support">Support</a></li>
-      <li><a href="/writeups/htb-archetype">Archetype</a></li>
+      <li><a href="/posts/htb-darkzero">DarkZero</a></li>
+      <li><a href="/posts/htb-support">Support</a></li>
+      <li><a href="/posts/htb-archetype">Archetype</a></li>
     </ul>
   </div>
 
   <div id="thm" class="writeup-list">
     <h2 style="color: #ebcb8b;">🏰 TryHackMe</h2>
     <ul>
-      <li><a href="/writeups/thm-attacktive-directory">Attacktive Directory</a></li>
-      <li><a href="/writeups/thm-soupedecode-01">Soupedecode 01</a></li>
-      <li><a href="/writeups/thm-vulnnet-roasted">VulnNet: Roasted</a></li>
-      <li><a href="/writeups/thm-vulnnet-active">VulnNet: Active</a></li>
-      <li><a href="/writeups/thm-razorblack">RazorBlack</a></li>
+      <li><a href="/posts/thm-attacktive-directory">Attacktive Directory</a></li>
+      <li><a href="/posts/thm-soupedecode-01">Soupedecode 01</a></li>
+      <li><a href="/posts/thm-vulnnet-roasted">VulnNet: Roasted</a></li>
+      <li><a href="/posts/thm-vulnnet-active">VulnNet: Active</a></li>
+      <li><a href="/posts/thm-razorblack">RazorBlack</a></li>
     </ul>
   </div>
 </div>
