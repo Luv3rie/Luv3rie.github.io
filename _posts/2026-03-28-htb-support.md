@@ -4,6 +4,17 @@ title: "HTB - Support"
 categories: [writeup]
 ---
 
+<style>
+.writeup-list img, .writeup-container img {
+  max-width: 100%;    
+  height: auto;       
+  display: block;
+  margin: 20px auto;  
+  border-radius: 10px; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+}
+</style>
+
 <img width="1557" height="125" alt="image" src="https://github.com/user-attachments/assets/92f3b57e-289c-433a-bff9-2a65418c73cc" />
 
 ### **1. Walkthrough**
