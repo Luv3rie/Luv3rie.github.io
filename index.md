@@ -1,6 +1,7 @@
 ---
 layout: page
 title: AD Mindmap Project
+published: false
 ---
 
 By **Luverie**,
