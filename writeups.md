@@ -3,7 +3,7 @@ layout: page
 title: "Write-ups"
 ---
 
-# 🚩 Security Lab Write-ups
+# 🚩 Lab Write-ups
 > "Only Windows machines"
 
 <style>
@@ -48,7 +48,6 @@ title: "Write-ups"
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Style cho danh sách bên trong */
   .writeup-list ul { list-style: none; padding: 0; }
   .writeup-list li {
     background: #2e3440;
@@ -69,7 +68,7 @@ title: "Write-ups"
   </div>
 
   <div id="htb" class="writeup-list">
-    <h2 style="color: #a3be8c;">🏔️ Hack The Box</h2>
+    <h2 style="color: #a3be8c;">Hack The Box</h2>
     <ul>
       <li><a href="/posts/htb-darkzero">DarkZero</a></li>
       <li><a href="/posts/htb-support">Support</a></li>
@@ -78,7 +77,7 @@ title: "Write-ups"
   </div>
 
   <div id="thm" class="writeup-list">
-    <h2 style="color: #ebcb8b;">🏰 TryHackMe</h2>
+    <h2 style="color: #ebcb8b;">TryHackMe</h2>
     <ul>
       <li><a href="/posts/thm-attacktive-directory">Attacktive Directory</a></li>
       <li><a href="/posts/thm-soupedecode-01">Soupedecode 01</a></li>
