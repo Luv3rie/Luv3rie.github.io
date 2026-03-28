@@ -5,17 +5,32 @@ categories: [writeup]
 ---
 
 <style>
-.writeup-list img, .writeup-container img {
-  max-width: 100%;    
-  height: auto;       
-  display: block;
-  margin: 20px auto;  
-  border-radius: 10px; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-}
+  .post-content {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .banner-img {
+    width: 100%;
+    height: 200px; 
+    object-fit: cover; 
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin-bottom: 30px;
+    display: block;
+  }
+
+  .post-content img:not(.banner-img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
 </style>
 
-<img width="1557" height="125" alt="image" src="https://github.com/user-attachments/assets/92f3b57e-289c-433a-bff9-2a65418c73cc" />
+<div class="post-content">
+
+<img src="https://github.com/user-attachments/assets/92f3b57e-289c-433a-bff9-2a65418c73cc" class="banner-img">
 
 ### **1. Walkthrough**
 
