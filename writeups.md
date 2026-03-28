@@ -1,7 +1,6 @@
 ---
 layout: page
 title: "Write-ups"
-permalink: /writeups/
 ---
 
 # 🚩 Security Lab Write-ups
