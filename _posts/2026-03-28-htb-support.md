@@ -69,7 +69,7 @@ We extract the archive to find a .NET executable, UserInfo.exe. Using dnSpy, we 
 We focus our attention on the UserInfo.Services namespace. Within the LdapQuery class, the constructor reveals hardcoded credentials used to connect to the DC via LDAP.
 
 dnSpy
-```
+```csharp
 LdapQuery @0x02000007
 ---
 public LdapQuery()
@@ -83,7 +83,7 @@ public LdapQuery()
 ```
 Looking further into the Protected class, we find the getPassword() method. It uses a simple XOR-based decryption routine with a hardcoded key (armando) and an encrypted base64 string.
 
-```
+```csharp
 Protected @0x02000006
 ---
 namespace UserInfo.Services
@@ -115,7 +115,7 @@ namespace UserInfo.Services
 
 We recreate the decryption logic in a Python script to recover the plaintext password.
 
-```bash
+```python
 cat decrypt.py
 ---
 import base64
