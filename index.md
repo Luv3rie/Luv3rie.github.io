@@ -3,7 +3,7 @@ layout: page
 title: "Write-ups"
 ---
 
-# 🚩 Lab Write-ups
+# 🚩 Write-ups
 > "Only Windows machines"
 
 <style>
@@ -75,18 +75,6 @@ title: "Write-ups"
       <li><a href="/posts/htb-archetype">Archetype</a></li>
     </ul>
   </div>
-
-  <div id="thm" class="writeup-list">
-    <h2 style="color: #ebcb8b;">TryHackMe</h2>
-    <ul>
-      <li><a href="/posts/thm-attacktive-directory">Attacktive Directory</a></li>
-      <li><a href="/posts/thm-soupedecode-01">Soupedecode 01</a></li>
-      <li><a href="/posts/thm-vulnnet-roasted">VulnNet: Roasted</a></li>
-      <li><a href="/posts/thm-vulnnet-active">VulnNet: Active</a></li>
-      <li><a href="/posts/thm-razorblack">RazorBlack</a></li>
-    </ul>
-  </div>
-</div>
 
 <script>
   function showPlatform(platformId) {
