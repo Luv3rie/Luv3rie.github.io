@@ -64,7 +64,6 @@ title: "Write-ups"
 <div class="writeup-container">
   <div class="btn-group">
     <button class="platform-btn" id="btn-htb" onclick="showPlatform('htb')">Hack The Box</button>
-    <button class="platform-btn" id="btn-thm" onclick="showPlatform('thm')">TryHackMe</button>
   </div>
 
   <div id="htb" class="writeup-list">
@@ -84,7 +83,6 @@ title: "Write-ups"
     document.getElementById(platformId).classList.add('active');
     
     if(platformId === 'htb') document.getElementById('btn-htb').classList.add('active');
-    if(platformId === 'thm') document.getElementById('btn-thm').classList.add('active');
   }
   
   window.onload = function() { showPlatform('htb'); };
