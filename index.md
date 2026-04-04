@@ -67,7 +67,6 @@ title: "Write-ups"
   </div>
 
   <div id="htb" class="writeup-list">
-    <h2 style="color: #a3be8c;">Hack The Box</h2>
     <ul>
       <li><a href="/posts/htb-darkzero">DarkZero</a></li>
       <li><a href="/posts/htb-support">Support</a></li>
