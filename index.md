@@ -68,9 +68,13 @@ title: "Write-ups"
 
   <div id="htb" class="writeup-list">
     <ul>
+      <!-- Insane -->
+      <!-- Hard -->
       <li><a href="/posts/htb-darkzero">DarkZero</a></li>
+      <!-- Medium -->
+      <!-- Easy -->
+      <li><a href="/posts/htb-eighteen">Eighteen</a></li>
       <li><a href="/posts/htb-support">Support</a></li>
-      <li><a href="/posts/htb-archetype">Archetype</a></li>
     </ul>
   </div>
 
