@@ -4,12 +4,11 @@ title: "HTB - Support"
 categories: [writeup]
 ---
 
-# Machine Info
+# Machine Information
 Support is an Easy difficulty Windows machine that features an SMB share that allows anonymous authentication. After connecting to the share, an executable file is discovered that is used to query the machine's LDAP server for available users. Through reverse engineering, network analysis or emulation, the password that the binary uses to bind the LDAP server is identified and can be used to make further LDAP queries. A user called `support` is identified in the users list, and the `info` field is found to contain his password, thus allowing for a WinRM connection to the machine. Once on the machine, domain information can be gathered through `SharpHound`, and `BloodHound` reveals that the `Shared Support Accounts` group that the `support` user is a member of, has `GenericAll` privileges on the Domain Controller. A Resource Based Constrained Delegation attack is performed, and a shell as `NT Authority\System` is received.
-
 # Nmap Scan
 ### DC.support.htb
-```bash
+```
 PORT     STATE SERVICE       VERSION
 53/tcp   open  domain        Simple DNS Plus
 88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2026-03-20 02:28:25Z)
@@ -60,7 +59,6 @@ SMB         10.129.230.181  445    DC               SYSVOL                      
 Accessing the `support-tools` share, I discovered `UserInfo.exe.zip`. This appears to be a custom domain utility, so I proceeded to download it for further analysis.
 ```bash
 ~/HTB/Windows/Support $ smbclient -U guest% //DC/support-tools
-Can't load /etc/samba/smb.conf - run testparm to debug it
 Try "help" to get a list of possible commands.
 smb: \> ls
   .                                   D        0  Thu Jul 21 00:01:06 2022
