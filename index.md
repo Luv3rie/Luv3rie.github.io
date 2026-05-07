@@ -70,6 +70,7 @@ title: "Write-ups"
     <ul>
       <!-- Insane -->
       <!-- Hard -->
+      <li><a href="/posts/htb-fries">Fries</a></li>
       <li><a href="/posts/htb-darkzero">DarkZero</a></li>
       <!-- Medium -->
       <li><a href="/posts/htb-overwatch">Overwatch</a></li>
