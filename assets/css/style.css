@@ -1,14 +1,25 @@
 ---
+
 ---
 @import "minima";
 
-body {
-  font-size: 20px;
-  line-height: 1.6;
+// Điều chỉnh chiều ngang cho toàn bộ trang
+.wrapper {
+  max-width: -webkit-calc(100% - (30px)); 
+  max-width: calc(100% - (30px));
+  padding-right: 30px;
+  padding-left: 30px;
 }
 
-.post-content {
-  p, li, blockquote {
-    font-size: 1.125rem; 
-  }
+// Nếu muốn giới hạn ở một mức rộng hơn (ví dụ 1400px) thay vì tràn màn hình:
+// .wrapper {
+//   max-width: 1400px;
+// }
+
+// Tối ưu cho ảnh không bị tràn hoặc quá nhỏ
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
