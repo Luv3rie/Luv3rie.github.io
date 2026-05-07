@@ -72,6 +72,7 @@ title: "Write-ups"
       <!-- Hard -->
       <li><a href="/posts/htb-darkzero">DarkZero</a></li>
       <!-- Medium -->
+      <li><a href="/posts/htb-overwatch">Overwatch</a></li>
       <!-- Easy -->
       <li><a href="/posts/htb-eighteen">Eighteen</a></li>
       <li><a href="/posts/htb-support">Support</a></li>
