@@ -23,3 +23,23 @@ img {
   display: block;
   margin: 0 auto;
 }
+
+// 1. Kéo dãn Header, Content và Footer ra 95% chiều ngang màn hình
+.wrapper {
+    max-width: 95% !important; 
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+// 2. Ép các khối Code Block (nmap, nxc) hiển thị hết cỡ, không bị co cụm
+.language-plaintext, .language-bash, .highlight {
+    width: 100% !important;
+}
+
+// 3. Đảm bảo hình ảnh minh họa bài write-up to rõ ràng
+.post-content img {
+    width: auto !important;
+    max-width: 100% !important;
+    display: block;
+    margin: 1em auto;
+}
