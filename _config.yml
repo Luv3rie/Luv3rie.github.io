@@ -6,15 +6,15 @@ lang: vi
 
 # Thông tin hiện ở trang giới thiệu. Ô nào để trống ("") thì không hiện.
 author:
-  handle: luv3rie
+  handle: luverie
   name: ""            # tên thật, vd "Nguyễn Văn A". Để trống thì hiện handle.
   role: Sinh viên An toàn thông tin, tập trung pentest Active Directory
-  email: ""           # vd "ban@gmail.com"
+  email: "bach.inforsec@gmail.com"           # vd "ban@gmail.com"
   github: luv3rie     # username GitHub
   htb: "https://profile.hackthebox.com/profile/019cd308-42f2-7243-a257-c16379039272"
   linkedin: "https://www.linkedin.com/in/luverie"
   cv: ""              # link file CV (PDF), vd "/assets/cv.pdf"
-  open_to_work: "Đang tìm vị trí thực tập pentest."   # để "" nếu không muốn hiện
+  open_to_work: ""   # để "" nếu không muốn hiện
 
 markdown: kramdown
 kramdown:
