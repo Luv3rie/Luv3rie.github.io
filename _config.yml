@@ -8,7 +8,7 @@ lang: vi
 author:
   handle: luverie
   name: ""            # tên thật, vd "Nguyễn Văn A". Để trống thì hiện handle.
-  role: Sinh viên An toàn thông tin, tập trung pentest Active Directory
+  role: Nguyễn Xuân Bách
   email: "bach.inforsec@gmail.com"           # vd "ban@gmail.com"
   github: luv3rie     # username GitHub
   htb: "https://profile.hackthebox.com/profile/019cd308-42f2-7243-a257-c16379039272"
