@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'vi' }}">
+{% include head.html %}
+<body>
+  <a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+  <header class="site-head">
+    <div class="wrap site-head__in">
+      <a class="brand" href="{{ '/' | relative_url }}">{{ site.author.handle | default: site.title }}</a>
+      <nav aria-label="Điều hướng chính">
+        <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>Giới thiệu</a>
+        <a href="{{ '/writeups/' | relative_url }}"{% if page.url == '/writeups/' or page.layout == 'post' %} aria-current="page"{% endif %}>Write-up</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {{ content }}
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap">
+      <p>{{ site.author.handle }}, {{ site.time | date: "%Y" }}. Viết bằng Markdown, chạy trên GitHub Pages. <a href="{{ '/feed.xml' | relative_url }}">RSS</a></p>
+    </div>
+  </footer>
+  <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
+</body>
+</html>

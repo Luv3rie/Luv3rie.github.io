@@ -1,24 +1,41 @@
-title: Luverie
-tagline: Security Research & AD Mindmap Project
-description: Chia sẻ kiến thức & Write up
-
-url: "https://Luv3rie.github.io"
+title: luv3rie
+description: Write-up các box Windows và Active Directory trên Hack The Box.
+url: "https://luv3rie.github.io"
 baseurl: ""
-permalink: /posts/:title/
+lang: vi
 
-lang: vi-VN
-timezone: Asia/Ho_Chi_Minh
-
-remote_theme: jekyll/minima
-plugins:
-  - jekyll-remote-theme
-  - jekyll-seo-tag
-  - jekyll-sitemap
-minima:
-  skin: dark
+# Thông tin hiện ở trang giới thiệu. Ô nào để trống ("") thì không hiện.
+author:
+  handle: luv3rie
+  name: ""            # tên thật, vd "Nguyễn Văn A". Để trống thì hiện handle.
+  role: Sinh viên An toàn thông tin, tập trung pentest Active Directory
+  email: ""           # vd "ban@gmail.com"
+  github: luv3rie     # username GitHub
+  htb: "https://profile.hackthebox.com/profile/019cd308-42f2-7243-a257-c16379039272"
+  linkedin: "https://www.linkedin.com/in/luverie"
+  cv: ""              # link file CV (PDF), vd "/assets/cv.pdf"
+  open_to_work: "Đang tìm vị trí thực tập pentest."   # để "" nếu không muốn hiện
 
 markdown: kramdown
-highlighter: rouge
 kramdown:
-  syntax_highlighter_opts:
-    disable: false
+  input: GFM
+  syntax_highlighter: rouge
+  hard_wrap: false
+
+# Giữ đúng dạng URL cũ: /posts/htb-support
+permalink: /posts/:title
+
+plugins:
+  - jekyll-feed
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+
+exclude:
+  - README.md
+  - tools/
+  - _preview/

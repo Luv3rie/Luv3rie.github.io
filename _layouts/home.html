@@ -1,0 +1,51 @@
+---
+layout: default
+---
+{% assign a = site.author %}
+<section class="hero wrap">
+  <p class="prompt" aria-hidden="true"><span class="prompt__ps">PS C:\Users\{{ a.handle }}&gt;</span> whoami</p>
+  <h1 class="hero__name">{% if a.name != "" and a.name %}{{ a.name }}{% else %}{{ a.handle }}{% endif %}</h1>
+  <p class="hero__role">{{ a.role }}</p>
+  {% if a.open_to_work and a.open_to_work != "" %}<p class="hero__status"><span class="hero__pulse" aria-hidden="true"></span>{{ a.open_to_work }}</p>{% endif %}
+  <ul class="links">
+    {% if a.email and a.email != "" %}<li><a href="mailto:{{ a.email }}">{{ a.email }}</a></li>{% endif %}
+    {% if a.github and a.github != "" %}<li><a href="https://github.com/{{ a.github }}">GitHub</a></li>{% endif %}
+    {% if a.htb and a.htb != "" %}<li><a href="{{ a.htb }}">Hack The Box</a></li>{% endif %}
+    {% if a.linkedin and a.linkedin != "" %}<li><a href="{{ a.linkedin }}">LinkedIn</a></li>{% endif %}
+    {% if a.cv and a.cv != "" %}<li><a href="{{ a.cv | relative_url }}">Tải CV</a></li>{% endif %}
+  </ul>
+</section>
+
+{% if site.data.credentials %}
+<section class="wrap block" aria-labelledby="groups-h">
+  <h2 id="groups-h" class="block__h">Chứng chỉ và thành tích</h2>
+  <p class="prompt prompt--sm" aria-hidden="true"><span class="prompt__ps">PS&gt;</span> whoami /groups</p>
+  <div class="groups" role="table" aria-labelledby="groups-h">
+    <div class="groups__row groups__row--head" role="row">
+      <span role="columnheader">Group Name</span><span role="columnheader">Loại</span><span role="columnheader">Mô tả</span>
+    </div>
+    {% for c in site.data.credentials %}
+    <div class="groups__row" role="row">
+      <code role="cell">{{ c.group }}</code><span role="cell" class="groups__type">{{ c.type }}</span><span role="cell">{{ c.note }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="wrap block prose prose--about">
+  {{ content }}
+</section>
+
+{% if site.posts.size > 0 %}
+<section class="wrap block" aria-labelledby="recent-h">
+  <h2 id="recent-h" class="block__h">Write-up mới</h2>
+  <ul class="rows">
+    {% for post in site.posts limit: 3 %}
+      {% assign item = post %}
+      {% include writeup-row.html %}
+    {% endfor %}
+  </ul>
+  <p class="more"><a href="{{ '/writeups/' | relative_url }}">Xem tất cả {{ site.posts.size }} write-up</a></p>
+</section>
+{% endif %}

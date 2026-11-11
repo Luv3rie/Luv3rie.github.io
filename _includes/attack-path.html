@@ -1,0 +1,19 @@
+{% if page.attack_path %}
+<figure class="path" aria-labelledby="path-cap">
+  <figcaption id="path-cap" class="path__cap">Đường tấn công</figcaption>
+  <ol class="path__list">
+    {% for step in page.attack_path %}
+    <li class="path__step" data-type="{{ step.type | default: 'user' | downcase }}" style="--i: {{ forloop.index0 }}">
+      <div class="path__node">
+        <span class="path__dot" aria-hidden="true"></span>
+        <code class="path__name">{{ step.node }}</code>
+        <span class="path__type">{{ step.type | default: 'user' | capitalize }}</span>
+      </div>
+      {% if step.edge and forloop.last == false %}
+      <p class="path__edge">{{ step.edge }}</p>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</figure>
+{% endif %}

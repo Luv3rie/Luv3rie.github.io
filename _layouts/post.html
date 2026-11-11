@@ -1,0 +1,32 @@
+---
+layout: default
+---
+<article class="post">
+  <header class="post-head wrap">
+    <p class="post-head__back"><a href="{{ '/writeups/' | relative_url }}">Tất cả write-up</a></p>
+    <h1 class="post-head__title">{{ page.title }}</h1>
+    {% if page.summary %}<p class="post-head__sum">{{ page.summary }}</p>{% endif %}
+    <dl class="facts">
+      {% if page.difficulty %}<div><dt>Độ khó</dt><dd><span class="diff diff--{{ page.difficulty | downcase }}">{{ page.difficulty }}</span></dd></div>{% endif %}
+      {% if page.os %}<div><dt>Hệ điều hành</dt><dd>{{ page.os }}</dd></div>{% endif %}
+      <div><dt>Ngày viết</dt><dd><time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%d/%m/%Y" }}</time></dd></div>
+      {% if page.tags.size > 0 %}<div><dt>Kỹ thuật</dt><dd>{{ page.tags | join: ", " }}</dd></div>{% endif %}
+    </dl>
+  </header>
+
+  <div class="wrap">
+    {% include attack-path.html %}
+  </div>
+
+  <div class="post-body wrap">
+    <nav class="toc" aria-label="Mục lục" hidden></nav>
+    <div class="prose">
+      {{ content }}
+    </div>
+  </div>
+
+  <footer class="post-foot wrap">
+    {% if page.previous %}<a class="post-foot__prev" href="{{ page.previous.url | relative_url }}"><small>Bài trước</small>{{ page.previous.title }}</a>{% endif %}
+    {% if page.next %}<a class="post-foot__next" href="{{ page.next.url | relative_url }}"><small>Bài sau</small>{{ page.next.title }}</a>{% endif %}
+  </footer>
+</article>

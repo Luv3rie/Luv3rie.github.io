@@ -1,0 +1,28 @@
+---
+layout: default
+title: Write-up
+permalink: /writeups/
+---
+<section class="wrap page">
+  <h1 class="page__title">Write-up</h1>
+  <p class="page__lede">Các box Windows và Active Directory trên Hack The Box. Dưới mỗi box là các bước chính trên đường tới Domain Admin.</p>
+
+  <ul class="key" aria-label="Chú giải màu">
+    <li data-type="user">User</li>
+    <li data-type="group">Group</li>
+    <li data-type="computer">Computer</li>
+    <li data-type="domain">Domain</li>
+    <li data-type="ca">CA / Template</li>
+  </ul>
+
+  {% if site.posts.size > 0 %}
+  <ul class="rows">
+    {% for post in site.posts %}
+      {% assign item = post %}
+      {% include writeup-row.html %}
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">Chưa có bài nào. Thêm một file Markdown vào thư mục <code>_posts</code> để bài đầu tiên hiện ở đây.</p>
+  {% endif %}
+</section>
