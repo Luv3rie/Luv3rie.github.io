@@ -1,4 +1,4 @@
-// Nút chép code, nhãn ngôn ngữ, mục lục tự sinh. Không phụ thuộc thư viện nào.
+// Nút chép code, nhãn ngôn ngữ, thu gọn output dài, mục lục tự sinh, xem ảnh phóng to. Không phụ thuộc thư viện nào.
 (function () {
   var prose = document.querySelector(".prose");
   if (!prose) return;
@@ -95,4 +95,148 @@
     }, { rootMargin: "0px 0px -70% 0px" });
     heads.forEach(function (h) { io.observe(h); });
   }
+})();
+
+// Xem ảnh: bấm vào ảnh trong bài để mở to, cuộn/chụm 2 ngón để zoom, kéo để di chuyển.
+(function () {
+  var imgs = document.querySelectorAll(".prose img");
+  if (!imgs.length) return;
+
+  var MIN = 0.2, MAX = 8;
+  var box = document.createElement("div");
+  box.className = "lb";
+  box.hidden = true;
+  box.setAttribute("role", "dialog");
+  box.setAttribute("aria-modal", "true");
+  box.setAttribute("aria-label", "Xem ảnh");
+  box.innerHTML =
+    '<img class="lb__img" alt="" draggable="false">' +
+    '<div class="lb__bar">' +
+      '<button type="button" data-act="out" aria-label="Thu nhỏ">−</button>' +
+      '<span class="lb__pct" aria-live="polite">100%</span>' +
+      '<button type="button" data-act="in" aria-label="Phóng to">+</button>' +
+      '<button type="button" data-act="fit">Vừa màn hình</button>' +
+      '<button type="button" data-act="real">Kích thước gốc</button>' +
+      '<button type="button" data-act="close" class="lb__close">Đóng</button>' +
+    '</div>' +
+    '<p class="lb__hint">Cuộn chuột để phóng to, kéo để di chuyển, Esc để đóng</p>';
+  document.body.appendChild(box);
+
+  var view = box.querySelector(".lb__img");
+  var pct = box.querySelector(".lb__pct");
+  var s = 1, x = 0, y = 0, fit = 1, lastFocus = null;
+
+  function apply() {
+    view.style.transform = "translate(-50%, -50%) translate(" + x + "px," + y + "px) scale(" + s + ")";
+    pct.textContent = Math.round(s * 100) + "%";
+  }
+  function fitScale() {
+    var w = view.naturalWidth || 1, h = view.naturalHeight || 1;
+    return Math.min(1, (innerWidth * 0.94) / w, (innerHeight - 110) / h);
+  }
+  // Zoom quanh điểm (cx, cy) tính từ tâm màn hình, để chỗ đang trỏ chuột đứng yên
+  function zoomTo(ns, cx, cy) {
+    ns = Math.min(MAX, Math.max(MIN, ns));
+    cx = cx || 0; cy = cy || 0;
+    x = cx - (cx - x) * (ns / s);
+    y = cy - (cy - y) * (ns / s);
+    s = ns;
+    apply();
+  }
+  function reset(to) { s = to; x = 0; y = 0; apply(); }
+
+  function open(img) {
+    lastFocus = document.activeElement;
+    view.src = img.currentSrc || img.src;
+    view.alt = img.alt;
+    box.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    var ready = function () { fit = fitScale(); reset(fit); };
+    view.complete ? ready() : (view.onload = ready);
+    box.querySelector(".lb__close").focus();
+  }
+  function close() {
+    box.hidden = true;
+    document.documentElement.style.overflow = "";
+    view.removeAttribute("src");
+    if (lastFocus) lastFocus.focus();
+  }
+
+  imgs.forEach(function (img) {
+    if (img.closest("a")) return; // ảnh đã có link thì để link hoạt động
+    img.classList.add("zoomable");
+    img.tabIndex = 0;
+    img.setAttribute("role", "button");
+    img.setAttribute("aria-label", "Phóng to ảnh" + (img.alt ? ": " + img.alt : ""));
+    img.addEventListener("click", function () { open(img); });
+    img.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(img); }
+    });
+  });
+
+  box.addEventListener("click", function (e) {
+    var act = e.target.getAttribute && e.target.getAttribute("data-act");
+    if (act === "in") zoomTo(s * 1.4);
+    else if (act === "out") zoomTo(s / 1.4);
+    else if (act === "fit") reset(fit);
+    else if (act === "real") reset(1);
+    else if (act === "close" || e.target === box) close();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (box.hidden) return;
+    if (e.key === "Escape") close();
+    else if (e.key === "+" || e.key === "=") zoomTo(s * 1.25);
+    else if (e.key === "-") zoomTo(s / 1.25);
+    else if (e.key === "0") reset(fit);
+    else if (e.key === "Tab") { // giữ focus trong hộp xem ảnh
+      var f = box.querySelectorAll("button"), first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  box.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var k = Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015));
+    zoomTo(s * k, e.clientX - innerWidth / 2, e.clientY - innerHeight / 2);
+  }, { passive: false });
+
+  view.addEventListener("dblclick", function (e) {
+    var target = Math.abs(s - fit) < 0.01 ? Math.max(1, fit * 2.5) : fit;
+    if (target === fit) reset(fit);
+    else zoomTo(target, e.clientX - innerWidth / 2, e.clientY - innerHeight / 2);
+  });
+
+  // Kéo bằng chuột, chụm 2 ngón trên điện thoại
+  var pts = new Map(), startDist = 0, startScale = 1, moved = false;
+  view.addEventListener("pointerdown", function (e) {
+    view.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    moved = false;
+    if (pts.size === 2) {
+      var p = Array.from(pts.values());
+      startDist = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+      startScale = s;
+    }
+  });
+  view.addEventListener("pointermove", function (e) {
+    var prev = pts.get(e.pointerId);
+    if (!prev) return;
+    var cur = { x: e.clientX, y: e.clientY };
+    pts.set(e.pointerId, cur);
+    if (pts.size === 1) {
+      x += cur.x - prev.x; y += cur.y - prev.y; moved = true; apply();
+    } else if (pts.size === 2 && startDist) {
+      var p = Array.from(pts.values());
+      var d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+      var mx = (p[0].x + p[1].x) / 2 - innerWidth / 2, my = (p[0].y + p[1].y) / 2 - innerHeight / 2;
+      zoomTo(startScale * d / startDist, mx, my);
+      moved = true;
+    }
+  });
+  function up(e) { pts.delete(e.pointerId); if (pts.size < 2) startDist = 0; }
+  view.addEventListener("pointerup", up);
+  view.addEventListener("pointercancel", up);
+  addEventListener("resize", function () { if (!box.hidden) { fit = fitScale(); } });
 })();

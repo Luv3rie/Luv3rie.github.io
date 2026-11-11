@@ -271,6 +271,36 @@ main { min-height: 70vh; }
   .post-foot__next { grid-column: 1; text-align: left; }
 }
 
+/* ---------- Xem ảnh phóng to ---------- */
+.prose img.zoomable { cursor: zoom-in; }
+.prose img.zoomable:hover { border-color: var(--mute); }
+
+.lb { position: fixed; inset: 0; z-index: 50; background: rgb(0 14 36 / .97); overflow: hidden; touch-action: none; }
+.lb[hidden] { display: none; }
+.lb__img {
+  position: absolute; left: 50%; top: calc(50% - 26px); max-width: none; transform-origin: center;
+  cursor: grab; user-select: none; -webkit-user-drag: none; box-shadow: 0 0 0 1px var(--rule);
+  image-rendering: auto;
+}
+.lb__img:active { cursor: grabbing; }
+.lb__bar {
+  position: absolute; left: 50%; bottom: 1.2rem; transform: translateX(-50%);
+  display: flex; align-items: center; gap: .35rem; padding: .35rem;
+  background: var(--bg-2); border: 1px solid var(--rule); border-radius: 8px; white-space: nowrap;
+}
+.lb__bar button {
+  font: 600 .85rem var(--sans); color: var(--ink); background: transparent;
+  border: 1px solid transparent; border-radius: 5px; padding: .35rem .7rem; cursor: pointer; min-width: 2.2rem;
+}
+.lb__bar button:hover { border-color: var(--rule); background: var(--bg); }
+.lb__bar .lb__close { color: var(--amber); }
+.lb__pct { font-family: var(--mono); font-size: .8rem; color: var(--mute); min-width: 3.4rem; text-align: center; }
+.lb__hint { position: absolute; top: .9rem; left: 0; right: 0; margin: 0; text-align: center; font-size: .8rem; color: var(--faint); pointer-events: none; }
+@media (max-width: 40rem) {
+  .lb__bar [data-act="real"] { display: none; }
+  .lb__hint { display: none; }
+}
+
 @media print {
   body { background: #fff; color: #000; }
   .site-head nav, .code-bar, .toc { display: none !important; }
