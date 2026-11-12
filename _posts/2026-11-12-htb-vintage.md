@@ -38,17 +38,6 @@ attack_path:
 > Cả box gần như không phải bắn exploit, mà chỉ xoay quanh cấu hình sai của AD: tài khoản pre2k, gMSA,
 > chuỗi ACL, một tài khoản dịch vụ bị vô hiệu hóa, DPAPI, và cuối cùng là Resource-Based Constrained Delegation.
 
-## Tóm tắt đường tấn công
-
-1. Domain chặn NTLM, buộc phải xác thực bằng Kerberos.
-2. `FS01$` là tài khoản máy pre2k -> mật khẩu đoán được bằng chính tên máy.
-3. `FS01$` thuộc `Domain Computers` nên đọc được mật khẩu `gMSA01$`.
-4. `gMSA01$` thuộc `SERVICEMANAGERS` có genericAll lên `svc_sql`.
-5. Bật lại `svc_sql` đang bị vô hiệu hóa, thực hiện targeted Kerberoasting và crack ra mật khẩu.
-6. Mật khẩu được dùng lại cho `c.neri` -> WinRM -> `user.txt`.
-7. DPAPI của `c.neri` chứa credential của `c.neri_adm`.
-8. `c.neri` điều khiển nhóm `DELEGATIONADMINS`, mà nhóm này được DC tin qua RBCD -> thêm `FS01$` vào nhóm -> s4u mạo danh `l.bianchi_adm` -> `root.txt`.
-
 ## 1. Enumeration
 
 ```
