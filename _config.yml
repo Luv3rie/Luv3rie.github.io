@@ -27,6 +27,7 @@ permalink: /posts/:title
 
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 defaults:
   - scope:
