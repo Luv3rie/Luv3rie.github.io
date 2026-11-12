@@ -1,9 +1,37 @@
 ---
 layout: post
-title: Vintage - HTB
+title: HTB - Vintage
+difficulty: Hard
 date: 2026-11-12
 categories: [write-up, hackthebox]
-tags: [active-directory, kerberos, gmsa, pre2k, kerberoasting, dpapi, rbcd, s4u]
+tags: [kerberos, gmsa, pre2k, kerberoasting, dpapi, rbcd, s4u]
+attack_path:
+  - node: p.rosa
+    type: user
+    edge: pre2k
+  - node: FS01$
+    type: computer
+    edge: ReadGMSAPassword
+  - node: gMSA01$
+    type: computer
+    edge: genericAll
+  - node: svc_sql
+    type: user
+    edge: password reuse
+  - node: c.neri
+    type: user
+    edge: DPAPI
+  - node: c.neri_adm
+    type: user
+    edge: genericWrite
+  - node: SERVICEMANAGERS
+    type: group
+    edge: FS01$ RBCD
+  - node: l.bianchi_adm
+    type: user
+    edge: Domain Admins
+  - node: VINTAGE.HTB
+    type: domain
 ---
 
 > Vintage là một box Windows/AD assumed breach: ta bắt đầu với một bộ credential thấp quyền có sẵn.
@@ -22,6 +50,44 @@ tags: [active-directory, kerberos, gmsa, pre2k, kerberoasting, dpapi, rbcd, s4u]
 8. `c.neri` điều khiển nhóm `DELEGATIONADMINS`, mà nhóm này được DC tin qua RBCD -> thêm `FS01$` vào nhóm -> s4u mạo danh `l.bianchi_adm` -> `root.txt`.
 
 ## 1. Enumeration
+
+```
+PORT      STATE SERVICE       REASON  VERSION
+53/tcp    open  domain        syn-ack Simple DNS Plus
+88/tcp    open  kerberos-sec  syn-ack Microsoft Windows Kerberos (server time: 2026-11-08 02:36:25Z)
+135/tcp   open  msrpc         syn-ack Microsoft Windows RPC
+139/tcp   open  netbios-ssn   syn-ack Microsoft Windows netbios-ssn
+389/tcp   open  ldap          syn-ack Microsoft Windows Active Directory LDAP (Domain: vintage.htb, Site: Default-First-Site-Name)
+445/tcp   open  microsoft-ds? syn-ack
+464/tcp   open  kpasswd5?     syn-ack
+593/tcp   open  ncacn_http    syn-ack Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  tcpwrapped    syn-ack
+5985/tcp  open  http          syn-ack Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-title: Not Found
+|_http-server-header: Microsoft-HTTPAPI/2.0
+9389/tcp  open  mc-nmf        syn-ack .NET Message Framing
+49664/tcp open  msrpc         syn-ack Microsoft Windows RPC
+49668/tcp open  msrpc         syn-ack Microsoft Windows RPC
+49676/tcp open  ncacn_http    syn-ack Microsoft Windows RPC over HTTP 1.0
+49687/tcp open  msrpc         syn-ack Microsoft Windows RPC
+Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   3.1.1: 
+|_    Message signing enabled and required
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 22961/tcp): CLEAN (Couldn't establish connection (TIMEOUT))
+|   Check 2 (port 60949/tcp): CLEAN (Couldn't establish connection (TIMEOUT))
+|   Check 3 (port 17035/udp): CLEAN (Couldn't receive bytes: TIMEOUT)
+|   Check 4 (port 22995/udp): CLEAN (Couldn't receive bytes: TIMEOUT)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb2-time: 
+|   date: 2026-11-08T02:37:17
+|_  start_date: N/A
+|_clock-skew: -1m24s
+```
 
 Nmap cho thấy một DC điển hình. Điểm đáng chú ý là khi thử bind LDAP bằng creds ban đầu:
 
