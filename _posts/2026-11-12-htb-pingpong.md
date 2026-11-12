@@ -13,7 +13,7 @@ attack_path:
     type: group
     edge: ReadGMSAPassword
   - node: Pong_gMSA$
-    type: machine
+    type: computer
     edge: JEA Escape
   - node: PONG\c.carlssen
     type: user
