@@ -297,7 +297,7 @@ File 'c.roberts.ccache' already exists. Overwrite? (y/n - saying no will save wi
 [*] Got hash for 'c.roberts@ping.htb': aad3b435b51404eeaad3b435b51404ee:2475be69d40e815588a85fd89c7a439d
 ```
 
-Có shell rồi, nhưng chưa có user flag:|
+Có shell rồi, nhưng chưa có user flag:<
 
 ```bash
 ~/HTB/Windows/PingPong $ winrmexec.py DC1 -k -no-pass
