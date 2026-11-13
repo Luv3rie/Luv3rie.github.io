@@ -850,7 +850,7 @@ Impacket v0.13.0.dev0 - Copyright Fortra, LLC and its affiliated companies
 SQL (pong\C.Adam  dbo@master)> enable_xp_cmdshell
 INFO(DC2): Line 196: Configuration option 'show advanced options' changed from 0 to 1. Run the RECONFIGURE statement to install.
 INFO(DC2): Line 196: Configuration option 'xp_cmdshell' changed from 0 to 1. Run the RECONFIGURE statement to install.
-``
+```
 
 Những tài khoản này thường xuyên có SeImpersonatePrivilege, và không ngoại lệ ở đây:
 
