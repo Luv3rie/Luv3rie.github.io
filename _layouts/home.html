@@ -3,8 +3,13 @@ layout: default
 ---
 {% assign a = site.author %}
 <section class="hero wrap">
-  <p class="prompt" aria-hidden="true"><span class="prompt__ps">PS C:\Users\{{ a.handle }}&gt;</span> whoami</p>
-  <h1 class="hero__name">{% if a.name != "" and a.name %}{{ a.name }}{% else %}{{ a.handle }}{% endif %}</h1>
+  <div class="hero__id">
+    {% if a.avatar and a.avatar != "" %}<img class="hero__avatar" src="{{ a.avatar | relative_url }}" alt="Avatar của {{ a.handle }}" width="320" height="320">{% endif %}
+    <div>
+      <p class="prompt" aria-hidden="true"><span class="prompt__ps">PS C:\Users\{{ a.handle }}&gt;</span> whoami</p>
+      <h1 class="hero__name">{% if a.name != "" and a.name %}{{ a.name }}{% else %}{{ a.handle }}{% endif %}</h1>
+    </div>
+  </div>
   <p class="hero__role">{{ a.role }}</p>
   {% if a.open_to_work and a.open_to_work != "" %}<p class="hero__status"><span class="hero__pulse" aria-hidden="true"></span>{{ a.open_to_work }}</p>{% endif %}
   <ul class="links">

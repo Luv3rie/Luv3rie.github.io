@@ -15,6 +15,7 @@ author:
   linkedin: "https://www.linkedin.com/in/luverie"
   cv: ""              # link file CV (PDF), vd "/assets/cv.pdf"
   open_to_work: ""   # để "" nếu không muốn hiện
+  avatar: "/assets/img/avatar.jpg"
 
 markdown: kramdown
 kramdown:

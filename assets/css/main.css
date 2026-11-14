@@ -74,6 +74,10 @@ main { min-height: 70vh; }
   margin: 0 0 1.1rem;
   overflow-wrap: anywhere;
 }
+.hero__id { display: flex; align-items: flex-end; gap: clamp(1rem, 3vw, 1.6rem); margin: 0 0 1.1rem; }
+.hero__id .prompt { margin-bottom: .45rem; }
+.hero__id .hero__name { margin: 0; }
+.hero__avatar { flex: none; width: clamp(84px, 18vw, 120px); height: auto; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--rule); object-fit: cover; }
 .hero__role { font-size: 1.25rem; line-height: 1.45; margin: 0 0 1.2rem; max-width: 32rem; color: var(--ink); }
 .hero__status { display: inline-flex; align-items: center; gap: .55rem; margin: 0 0 1.6rem; color: var(--t-user); font-size: .95rem; font-weight: 600; }
 .hero__pulse { width: .55rem; height: .55rem; border-radius: 50%; background: var(--t-user); box-shadow: 0 0 0 4px rgb(110 225 138 / .18); }
