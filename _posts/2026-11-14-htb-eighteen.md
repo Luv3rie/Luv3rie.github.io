@@ -64,11 +64,11 @@ Host script results:
 |_clock-skew: mean: 7h00m00s, deviation: 0s, median: 6h59m59s
 ```
 
-Như output Nmap thì DC01 chỉ mở mỗi cổng 1433, trên version ghi rõ Microsoft SQL Server 2022.
+Như output Nmap thì DC01 chỉ mở mỗi cổng 80, 1433, 5985.
 
-> Rất nhiều box mở cổng này nhưng tôi hay gặp tình trạng quét Nmap lần đầu không thấy nó mở, nên tôi thường kiểm tra lại cho chắc bằng `nc -zv <IP> 1433`.
+> Rất nhiều box mở cổng này nhưng tôi hay gặp tình trạng quét Nmap lần đầu không thấy 1433 nó mở, nên tôi thường kiểm tra lại cho chắc bằng `nc -zv <IP> 1433`.
 
-Chả có đường nào khác ngoài MSSQL rồi, mình truy cập vào với tài khoản được cấp sẵn:
+Tôi đã rà soát trang web khá kỹ nhưng có vẻ nó là rabbit hole. Chả có đường nào khác ngoài MSSQL rồi, mình truy cập vào với tài khoản được cấp sẵn:
 
 ```bash
 ~/HTB/Windows/Eighteen $ mssqlclient.py eighteen.htb/kevin:'iNa2we6haRj2gaw!'@DC01
@@ -240,7 +240,7 @@ WINRM       10.129.14.79    5985   DC01             [+] eighteen.htb\adam.scott:
 466412bd4d0f96c4f11186ba74eba119
 ```
 
-## 4. dMSA & BadSuccesstor
+## 4. dMSA & BadSuccessor
 
 Kiểm tra nhanh quyền hạn nội bộ và nhóm thì `adam.scott` thuộc phòng IT, không có quyền nội bộ nào. IT thì chắc chắn có ACL hay ho rồi.
 
@@ -393,5 +393,5 @@ Administrator:0x17:0b133be956bfaddf9cea56701affddec
 
 - Thu hồi ngay quyền IMPERSONATE thừa thãi trong MSSQL Server
 - Buộc nhân viên sử dụng mật khẩu mạnh và đặc biệt không dùng lại mật khẩu.
-- Xóa quyền CreatedChild của IT lên các OU quan trọng.
+- Xóa quyền CreateChild của IT lên các OU quan trọng.
 - Giám sát chặt chẽ các thuộc tính như msDS-ManagedAccountPrecededByLink và msDS-GroupMSAMembership để phát hiện kịp thời các liên kết bất thường.
